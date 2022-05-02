@@ -24,8 +24,7 @@ public class _202205020830_InitialTables : Migration
     {
         Create.Table("SalesInvoices")
             .WithColumn("Id").AsInt32().NotNullable().PrimaryKey().Identity()
-            .WithColumn("DateTime").AsDate()
-            .WithDefaultValue(SystemMethods.CurrentDateTime)
+            .WithColumn("DateTime").AsDateTime().WithDefaultValue(SystemMethods.CurrentDateTime)
             .WithColumn("BuyerName").AsString(100).NotNullable()
             .WithColumn("Count").AsInt32().NotNullable()
             .WithColumn("Price").AsInt32().NotNullable()
@@ -38,10 +37,9 @@ public class _202205020830_InitialTables : Migration
     {
         Create.Table("EntryDocuments")
             .WithColumn("Id").AsInt32().NotNullable().PrimaryKey().Identity()
-            .WithColumn("DateTime").AsDate()
-            .WithDefaultValue(SystemMethods.CurrentDateTime)
-            .WithColumn("ManufactureDate").AsDate().NotNullable()
-            .WithColumn("ExpirationDate").AsDate().NotNullable()
+            .WithColumn("DateTime").AsDateTime().WithDefaultValue(SystemMethods.CurrentDateTime)
+            .WithColumn("ManufactureDate").AsDateTime().NotNullable()
+            .WithColumn("ExpirationDate").AsDateTime().NotNullable()
             .WithColumn("Count").AsInt32().NotNullable()
             .WithColumn("PurchasePrice").AsInt32().NotNullable()
             .WithColumn("ProductId").AsInt32().NotNullable()
@@ -60,7 +58,7 @@ public class _202205020830_InitialTables : Migration
             .WithColumn("MinimumAllowableStock").AsInt32().WithDefaultValue(0)
             .WithColumn("MaximumAllowableStock").AsInt32().NotNullable()
             .WithColumn("Stock").AsInt32().WithDefaultValue(0)
-            .WithColumn("CategoryId").AsInt32().NotNullable()
+            .WithColumn("CategoryId").AsInt32()
             .ForeignKey("FK_Products_Categories", "Categories", "Id")
             .OnDelete(Rule.Cascade);
     }

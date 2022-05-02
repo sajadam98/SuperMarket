@@ -1,5 +1,11 @@
 ﻿public class Product
 {
+    public Product()
+    {
+        EntryDocuments = new List<EntryDocument>();
+        SalesInvoices = new List<SalesInvoice>();
+    }
+
     public int Id { get; set; }
     public string Name { get; set; }
     public string ProductKey { get; set; }
