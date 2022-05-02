@@ -12,4 +12,9 @@ public class EFCategoryRepository : CategoryRepository
     {
         _dataContext.Set<Category>().Add(category);
     }
+
+    public bool IsCategoryNameExist(string name)
+    {
+        return _dataContext.Set<Category>().Any(_ => _.Name == name);
+    }
 }

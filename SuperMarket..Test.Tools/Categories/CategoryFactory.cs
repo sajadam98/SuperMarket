@@ -7,4 +7,12 @@
             Name = "لبنیات"
         };
     }
+    
+    public static Category GenerateCategory()
+    {
+        return new Category
+        {
+            Name = "لبنیات"
+        };
+    }
 }

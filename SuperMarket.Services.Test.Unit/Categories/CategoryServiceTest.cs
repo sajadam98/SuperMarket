@@ -26,4 +26,18 @@ public class CategoryServiceTest
         _dbContext.Set<Category>().Should()
             .Contain(_ => _.Name == dto.Name);
     }
+
+    [Fact]
+    public void
+        Add_throw_DuplicateCategoryNameInCategoryException_when_add_category_with_this_name_is_exist()
+    {
+        var category = CategoryFactory.GenerateCategory();
+        _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
+        var dto = CategoryFactory.GenerateCategoryDto();
+
+        var expected = () => _sut.Add(dto);
+
+        expected.Should()
+            .ThrowExactly<DuplicateCategoryNameInCategoryException>();
+    }
 }

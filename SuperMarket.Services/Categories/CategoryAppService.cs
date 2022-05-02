@@ -12,6 +12,13 @@
 
     public void Add(AddCategoryDto dto)
     {
+        var isCategoryNameExist =
+            _repository.IsCategoryNameExist(dto.Name);
+        if (isCategoryNameExist)
+        {
+            throw new DuplicateCategoryNameInCategoryException();
+        }
+
         var category = new Category
         {
             Name = dto.Name,
