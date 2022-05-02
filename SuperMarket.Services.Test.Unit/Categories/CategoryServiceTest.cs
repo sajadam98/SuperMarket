@@ -19,7 +19,7 @@ public class CategoryServiceTest
     [Fact]
     public void Add_adds_category_properly()
     {
-        var dto = CategoryFactory.GenerateCategoryDto();
+        var dto = CategoryFactory.GenerateAddCategoryDto();
 
         _sut.Add(dto);
 
@@ -33,11 +33,24 @@ public class CategoryServiceTest
     {
         var category = CategoryFactory.GenerateCategory();
         _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
-        var dto = CategoryFactory.GenerateCategoryDto();
+        var dto = CategoryFactory.GenerateAddCategoryDto();
 
         var expected = () => _sut.Add(dto);
 
         expected.Should()
             .ThrowExactly<DuplicateCategoryNameInCategoryException>();
+    }
+
+    [Fact]
+    public void Update_updates_category_with_id_properly()
+    {
+        var category = CategoryFactory.GenerateCategory();
+        _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
+        var dto = CategoryFactory.GenerateUpdateCategoryDto();
+
+        _sut.Update(category.Id, dto);
+
+        _dbContext.Set<Category>().Should()
+            .Contain(_ => _.Name == dto.Name);
     }
 }

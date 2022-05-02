@@ -26,4 +26,17 @@
         _repository.Add(category);
         _unitOfWork.Save();
     }
+
+    public void Update(int id, UpdateCategoryDto dto)
+    {
+        var category = _repository.Find(id);
+        if (category == null)
+        {
+            throw new CategoryNotExistException();
+        }
+
+        category.Name = dto.Name;
+        
+        _repository.Update(category);
+    }
 }
