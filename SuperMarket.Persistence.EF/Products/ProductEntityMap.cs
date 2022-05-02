@@ -11,7 +11,7 @@ public class ProductEntityMap : IEntityTypeConfiguration<Product>
         _.Property(p => p.Name).HasMaxLength(70).IsRequired();
         _.Property(p => p.ProductKey).HasMaxLength(10).IsRequired();
         _.Property(p => p.Price).IsRequired();
-        _.Property(p => p.Brand).IsRequired();
+        _.Property(p => p.Brand).HasMaxLength(50).IsRequired();
         _.Property(p => p.MinimumAllowableStock).HasDefaultValue(0);
         _.Property(p => p.MaximumAllowableStock).IsRequired();
         _.Property(p => p.Stock).HasDefaultValue(0);
