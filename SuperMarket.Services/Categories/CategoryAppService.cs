@@ -38,5 +38,6 @@
         category.Name = dto.Name;
         
         _repository.Update(category);
+        _unitOfWork.Save();
     }
 }
