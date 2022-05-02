@@ -10,4 +10,6 @@
     public int Stock { get; set; }
     public int CategoryId { get; set; }
     public Category Category { get; set; }
+    public List<EntryDocument> EntryDocuments { get; set; }
+    public List<SalesInvoice> SalesInvoices { get; set; }
 }
