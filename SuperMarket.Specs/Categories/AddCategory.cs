@@ -11,13 +11,13 @@ using static BDDHelper;
 )]
 public class AddCategory : EFDataContextDatabaseFixture
 {
-    private readonly EFDataContext _dataContext;
+    private readonly EFDataContext _dbContext;
     private AddCategoryDto _dto;
 
     public AddCategory(ConfigurationFixture configuration) : base(
         configuration)
     {
-        _dataContext = CreateDataContext();
+        _dbContext = CreateDataContext();
     }
 
     [Given(
@@ -33,9 +33,9 @@ public class AddCategory : EFDataContextDatabaseFixture
         {
             Name = "لبنیات"
         };
-        var unitOfWork = new EFUnitOfWork(_dataContext);
+        var unitOfWork = new EFUnitOfWork(_dbContext);
         CategoryRepository categoryRepository =
-            new EFCategoryRepository(_dataContext);
+            new EFCategoryRepository(_dbContext);
         CategoryService sut = new CategoryAppService(categoryRepository,
             unitOfWork);
 
@@ -46,7 +46,7 @@ public class AddCategory : EFDataContextDatabaseFixture
         "باید دسته بندی با عنوان 'لبنیات' در فهرست دسته بندی ها وجود داشته باشد")]
     public void Then()
     {
-        var expected = _dataContext.Set<Category>().FirstOrDefault();
+        var expected = _dbContext.Set<Category>().FirstOrDefault();
 
         expected.Name.Should().Be(_dto.Name);
     }

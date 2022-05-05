@@ -46,4 +46,11 @@
         _repository.Update(category);
         _unitOfWork.Save();
     }
+
+    public void Delete(int id)
+    {
+        var category = _repository.Find(id);
+        _repository.Delete(category);
+        _unitOfWork.Save();
+    }
 }

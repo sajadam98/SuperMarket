@@ -83,4 +83,17 @@ public class CategoryServiceTest
         expected.Should()
             .ThrowExactly<CategoryNotExistException>();
     }
+    
+    [Fact]
+    public void
+        Delete_deletes_category_with_id_properly()
+    {
+        var category = CategoryFactory.GenerateCategory();
+        _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
+
+        _sut.Delete(category.Id);
+
+        _dbContext.Set<Category>().Should().NotContain(_ =>
+            _.Name == category.Name && _.Id == category.Id);
+    }
 }

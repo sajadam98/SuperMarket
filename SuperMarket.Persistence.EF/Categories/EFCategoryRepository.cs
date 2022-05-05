@@ -33,4 +33,9 @@
         return _dbContext.Set<Category>().Where(_ => _.Id != id)
             .Any(_ => _.Name == name);
     }
+
+    public void Delete(Category category)
+    {
+        _dbContext.Set<Category>().Remove(category);
+    }
 }

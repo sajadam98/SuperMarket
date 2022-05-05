@@ -6,4 +6,5 @@ public interface CategoryRepository : Repository
     public Category Find(int id);
     public void Update(Category category);
     public bool IsCategoryNameExistDuringUpdateCategory(int id, string name);
+    void Delete(Category category);
 }
