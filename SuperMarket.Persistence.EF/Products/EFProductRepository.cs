@@ -11,4 +11,9 @@ public class EFProductRepository : ProductRepository
     {
         return _dbContext.Set<Product>().Any(_ => _.CategoryId == categoryId);
     }
+
+    public void Add(Product product)
+    {
+        _dbContext.Set<Product>().Add(product);
+    }
 }
