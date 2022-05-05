@@ -8,19 +8,19 @@
         };
     }
     
-    public static Category GenerateCategory()
+    public static Category GenerateCategory(string name = "لبنیات")
     {
         return new Category
         {
-            Name = "لبنیات"
+            Name = name
         };
     }
     
-    public static UpdateCategoryDto GenerateUpdateCategoryDto()
+    public static UpdateCategoryDto GenerateUpdateCategoryDto(string name = "خشکبار")
     {
         return new UpdateCategoryDto
         {
-            Name = "خشکبار"
+            Name = name
         };
     }
 }

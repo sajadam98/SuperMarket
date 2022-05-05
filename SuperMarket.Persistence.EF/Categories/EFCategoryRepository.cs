@@ -12,18 +12,25 @@
         _dbContext.Set<Category>().Add(category);
     }
 
-    public bool IsCategoryNameExist(string name)
+    public bool IsCategoryNameExistDuringAddCategory(string name)
     {
         return _dbContext.Set<Category>().Any(_ => _.Name == name);
     }
 
     public Category Find(int id)
     {
-        return _dbContext.Set<Category>().First(_ => _.Id == id);
+        return _dbContext.Set<Category>().FirstOrDefault(_ => _.Id == id);
     }
 
     public void Update(Category category)
     {
         _dbContext.Set<Category>().Update(category);
+    }
+
+    public bool IsCategoryNameExistDuringUpdateCategory(int id,
+        string name)
+    {
+        return _dbContext.Set<Category>().Where(_ => _.Id != id)
+            .Any(_ => _.Name == name);
     }
 }

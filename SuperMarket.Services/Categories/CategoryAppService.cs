@@ -13,7 +13,7 @@
     public void Add(AddCategoryDto dto)
     {
         var isCategoryNameExist =
-            _repository.IsCategoryNameExist(dto.Name);
+            _repository.IsCategoryNameExistDuringAddCategory(dto.Name);
         if (isCategoryNameExist)
         {
             throw new DuplicateCategoryNameInCategoryException();
@@ -33,6 +33,12 @@
         if (category == null)
         {
             throw new CategoryNotExistException();
+        }
+        var isCategoryNameExist =
+            _repository.IsCategoryNameExistDuringUpdateCategory(id,dto.Name);
+        if (isCategoryNameExist)
+        {
+            throw new DuplicateCategoryNameInCategoryException();
         }
 
         category.Name = dto.Name;
