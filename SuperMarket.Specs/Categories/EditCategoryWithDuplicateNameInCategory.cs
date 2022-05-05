@@ -59,7 +59,9 @@ public class
         var unitOfWork = new EFUnitOfWork(_dbContext);
         CategoryRepository categoryRepository =
             new EFCategoryRepository(_dbContext);
-        CategoryService sut = new CategoryAppService(categoryRepository,
+        ProductRepository _productRepository =
+            new EFProductRepository(_dbContext);
+        CategoryService sut = new CategoryAppService(categoryRepository, _productRepository,
             unitOfWork);
 
         _expected = () => sut.Update(_category.Id, dto);

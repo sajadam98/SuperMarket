@@ -1,12 +1,15 @@
 ﻿public class CategoryAppService : CategoryService
 {
     private readonly CategoryRepository _repository;
+    private readonly ProductRepository _productRepository;
     private readonly UnitOfWork _unitOfWork;
 
     public CategoryAppService(CategoryRepository repository,
+        ProductRepository productRepository,
         UnitOfWork unitOfWork)
     {
         _repository = repository;
+        _productRepository = productRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -34,15 +37,17 @@
         {
             throw new CategoryNotExistException();
         }
+
         var isCategoryNameExist =
-            _repository.IsCategoryNameExistDuringUpdateCategory(id,dto.Name);
+            _repository.IsCategoryNameExistDuringUpdateCategory(id,
+                dto.Name);
         if (isCategoryNameExist)
         {
             throw new DuplicateCategoryNameInCategoryException();
         }
 
         category.Name = dto.Name;
-        
+
         _repository.Update(category);
         _unitOfWork.Save();
     }
@@ -50,6 +55,13 @@
     public void Delete(int id)
     {
         var category = _repository.Find(id);
+        var isCategoryContainProduct =
+            _productRepository.IsCategoryContainProduct(id);
+        if (isCategoryContainProduct)
+        {
+            throw new CategoryContainsProductException();
+        }
+
         _repository.Delete(category);
         _unitOfWork.Save();
     }

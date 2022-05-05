@@ -13,7 +13,10 @@ public class CategoryServiceTest
         UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
         CategoryRepository repository =
             new EFCategoryRepository(_dbContext);
-        _sut = new CategoryAppService(repository, unitOfWork);
+        ProductRepository _productRepository =
+            new EFProductRepository(_dbContext);
+        _sut = new CategoryAppService(repository, _productRepository,
+            unitOfWork);
     }
 
     [Fact]
@@ -83,7 +86,7 @@ public class CategoryServiceTest
         expected.Should()
             .ThrowExactly<CategoryNotExistException>();
     }
-    
+
     [Fact]
     public void
         Delete_deletes_category_with_id_properly()
@@ -95,5 +98,27 @@ public class CategoryServiceTest
 
         _dbContext.Set<Category>().Should().NotContain(_ =>
             _.Name == category.Name && _.Id == category.Id);
+    }
+
+    [Fact]
+    public void
+        Delete_throw_CategoryContainsProductException_with_given_id_contain_product()
+    {
+        var category = CategoryFactory.GenerateCategory();
+        _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
+        var product = new Product
+        {
+            Name = "انرژی زا",
+            ProductKey = "1234",
+            Price = 25000,
+            Brand = "سن ایچ",
+            CategoryId = category.Id,
+            MaximumAllowableStock = 10,
+        };
+        _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
+
+        var expected = () => _sut.Delete(category.Id);
+
+        expected.Should().ThrowExactly<CategoryContainsProductException>();
     }
 }

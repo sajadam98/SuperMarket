@@ -36,7 +36,10 @@ public class AddCategory : EFDataContextDatabaseFixture
         var unitOfWork = new EFUnitOfWork(_dbContext);
         CategoryRepository categoryRepository =
             new EFCategoryRepository(_dbContext);
+        ProductRepository _productRepository =
+            new EFProductRepository(_dbContext);
         CategoryService sut = new CategoryAppService(categoryRepository,
+            _productRepository,
             unitOfWork);
 
         sut.Add(_dto);

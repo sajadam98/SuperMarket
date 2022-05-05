@@ -1,4 +1,3 @@
-using System.Linq;
 using FluentAssertions;
 using Xunit;
 using static BDDHelper;
@@ -37,7 +36,9 @@ public class DeleteCategory : EFDataContextDatabaseFixture
         var unitOfWork = new EFUnitOfWork(_dbContext);
         CategoryRepository categoryRepository =
             new EFCategoryRepository(_dbContext);
-        CategoryService sut = new CategoryAppService(categoryRepository,
+        ProductRepository _productRepository =
+            new EFProductRepository(_dbContext);
+        CategoryService sut = new CategoryAppService(categoryRepository, _productRepository,
             unitOfWork);
 
         sut.Delete(_category.Id);
