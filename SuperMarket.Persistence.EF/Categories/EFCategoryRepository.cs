@@ -38,4 +38,14 @@
     {
         _dbContext.Set<Category>().Remove(category);
     }
+
+    public IList<GetCategoryDto> GetAll()
+    {
+        return _dbContext.Set<Category>().Select(_ => new GetCategoryDto
+            {
+                Id = _.Id,
+                Name = _.Name,
+            })
+            .ToList();
+    }
 }

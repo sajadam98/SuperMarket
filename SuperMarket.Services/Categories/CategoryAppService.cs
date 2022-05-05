@@ -65,4 +65,9 @@
         _repository.Delete(category);
         _unitOfWork.Save();
     }
+
+    public IList<GetCategoryDto> GetAll()
+    {
+        return _repository.GetAll();
+    }
 }

@@ -121,4 +121,17 @@ public class CategoryServiceTest
 
         expected.Should().ThrowExactly<CategoryContainsProductException>();
     }
+
+    [Fact]
+    public void
+        GetAll_retutns_categories_properly()
+    {
+        var category = CategoryFactory.GenerateCategory();
+        _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
+
+        var expected = _sut.GetAll();
+
+        expected.Should().Contain(_ =>
+            _.Name == category.Name && _.Id == category.Id);
+    }
 }

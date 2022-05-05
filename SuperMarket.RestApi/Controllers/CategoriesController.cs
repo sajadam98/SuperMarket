@@ -22,4 +22,16 @@ public class CategoriesController : Controller
     {
         _service.Update(id, dto);
     }
+
+    [HttpDelete("{id:int}")]
+    public void Delete(int id)
+    {
+        _service.Delete(id);
+    }
+
+    [HttpGet]
+    public IList<GetCategoryDto> GetAll()
+    {
+        return _service.GetAll();
+    }
 }
