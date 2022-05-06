@@ -7,6 +7,18 @@ public class SaleInvoiceFactory
     {
         return new AddSaleInvoiceDto
         {
+            Count = 5,
+            Price = 25000,
+            ProductId = productId,
+            BuyerName = "علی علینقیپور",
+            DateTime = new DateTime(1400, 04, 16)
+        };
+    }
+    
+    public static SalesInvoice GenerateSaleInvoice(int productId)
+    {
+        return new SalesInvoice
+        {
             Count = 50,
             Price = 18000,
             ProductId = productId,

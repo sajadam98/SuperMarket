@@ -15,12 +15,12 @@ public class SaleInvoiceAppService : SaleInvoiceService
 
     public void Add(AddSaleInvoiceDto dto)
     {
-        var isNumberOfPurchaseAllowed =
-            _productRepository.IsNumberOfPurchaseAllowed(dto.ProductId,
+        var isNumberOfSaleAllowed =
+            _productRepository.IsNumberOfSaleAllowed(dto.ProductId,
                 dto.Count);
-        if (!isNumberOfPurchaseAllowed)
+        if (!isNumberOfSaleAllowed)
         {
-            throw new MaximumAllowableProductStockIsNotObserved();
+            throw new AvailableProductStockNotObservedException();
         }
         var saleInvoice = new SalesInvoice
         {
@@ -32,5 +32,10 @@ public class SaleInvoiceAppService : SaleInvoiceService
         };
         _repository.Add(saleInvoice);
         _unitOfWork.Save();
+    }
+
+    public IList<GetSaleInvoiceDto> GetAll()
+    {
+        return _repository.GetAll();
     }
 }

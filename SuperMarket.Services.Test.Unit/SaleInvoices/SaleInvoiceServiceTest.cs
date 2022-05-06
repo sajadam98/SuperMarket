@@ -59,6 +59,6 @@ public class SaleInvoiceServiceTest
         var expected = () => _sut.Add(dto);
 
         expected.Should()
-            .ThrowExactly<MaximumAllowableProductStockIsNotObserved>();
+            .ThrowExactly<AvailableProductStockNotObservedException>();
     }
 }

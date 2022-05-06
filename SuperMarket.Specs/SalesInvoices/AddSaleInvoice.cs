@@ -3,10 +3,10 @@ using FluentAssertions;
 using Xunit;
 using static BDDHelper;
 
-[Scenario("تعریف سند ورودی")]
+[Scenario("تعریف فاکتور فروش")]
 [Feature("",
     AsA = "فروشنده",
-    IWantTo = "سند ورود تعریف کنم",
+    IWantTo = "فاکتور فروش تعریف کنم",
     InOrderTo = "فروش کالا را مدیریت کنم"
 )]
 public class AddSaleInvoice : EFDataContextDatabaseFixture
@@ -28,13 +28,12 @@ public class AddSaleInvoice : EFDataContextDatabaseFixture
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
         _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
         _product = new ProductBuilder().WithCategoryId(category.Id)
-            .WithMaximumAllowableStock(100)
             .Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
     }
 
     [When(
-        "سندی با تاریخ صدور '16/04/1400' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '50' با قیمت فی '18000' و مجموع قیمت '900000' و تاریخ تولید '16/04/1400' و تاریخ انقضا '16/10/1400' را تعریف می کنم")]
+        "فاکتوری با تاریخ صدور '16/04/1400' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '5' با قیمت '25000' را تعریف می کنم")]
     public void When()
     {
         _dto = SaleInvoiceFactory.GenerateAddSaleInvoiceDto(_product.Id);
@@ -52,16 +51,16 @@ public class AddSaleInvoice : EFDataContextDatabaseFixture
     }
 
     [Then(
-        "باید کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و تعداد موجودی '60' در فهرست کالا ها وجود داشته باشد")]
+        "باید کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و تعداد موجودی '5' در فهرست کالا ها وجود داشته باشد")]
     public void Then()
     {
         var expected = _dbContext.Set<Product>()
             .FirstOrDefault(_ => _.Id == _product.Id);
-        expected!.Stock.Should().Be(_dto.Count + _product.Stock);
+        expected!.Stock.Should().Be(_product.Stock - _dto.Count);
     }
 
     [And(
-        "سندی با تاریخ '16/04/1400' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '50' با قیمت فی '18000' و مجموع قیمت '900000' و تاریخ تولید '16/04/1400' و تاریخ انقضا '16/10/1400' وجود داشته باشد")]
+        "باید فاکتوری با تاریخ صدور '16/04/1400' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '5' با قیمت '25000' و مجموع قیمت '125000'  در فهرست فاکتورها وجود داشته باشد")]
     public void AndThen()
     {
         var expected = _dbContext.Set<SalesInvoice>().FirstOrDefault();
