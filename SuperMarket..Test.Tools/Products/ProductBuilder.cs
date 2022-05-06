@@ -29,9 +29,16 @@ public class ProductBuilder
         _product.CategoryId = categoryId;
         return this;
     }
+
     public ProductBuilder WithStock(int stock)
     {
         _product.Stock = stock;
+        return this;
+    }
+
+    public ProductBuilder WithMaximumAllowableStock(int max)
+    {
+        _product.MaximumAllowableStock = max;
         return this;
     }
 
@@ -39,5 +46,4 @@ public class ProductBuilder
     {
         return _product;
     }
-
 }

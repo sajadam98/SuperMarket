@@ -8,4 +8,5 @@ public interface ProductRepository : Repository
     public void Update(Product product);
     public IList<GetProductDto> GetAll();
     public IList<GetProductDto> GetAvailableProducts();
+    public bool IsNumberOfPurchaseAllowed(int productId, int saleInvoiceCount);
 }

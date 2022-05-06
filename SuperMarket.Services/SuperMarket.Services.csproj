@@ -11,8 +11,4 @@
       <ProjectReference Include="..\SuperMarket.Infrastructure\SuperMarket.Infrastructure.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="SaleInvoices\Exceptions" />
-    </ItemGroup>
-
 </Project>

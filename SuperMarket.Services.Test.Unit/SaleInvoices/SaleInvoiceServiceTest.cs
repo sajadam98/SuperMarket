@@ -15,7 +15,9 @@ public class SaleInvoiceServiceTest
         UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
         SaleInvoiceRepository repository =
             new EFSaleInvoiceRepository(_dbContext);
-        _sut = new SaleInvoiceAppService(repository,
+        ProductRepository productRepository =
+            new EFProductRepository(_dbContext);
+        _sut = new SaleInvoiceAppService(repository, productRepository,
             unitOfWork);
     }
 
@@ -25,6 +27,7 @@ public class SaleInvoiceServiceTest
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
         _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
         var product = new ProductBuilder().WithCategoryId(category.Id)
+            .WithStock(100)
             .Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
         var dto = SaleInvoiceFactory.GenerateAddSaleInvoiceDto(product.Id);
@@ -40,5 +43,22 @@ public class SaleInvoiceServiceTest
         expected2.BuyerName.Should().Be(dto.BuyerName);
         expected2.DateTime.Should().Be(dto.DateTime);
         expected2.ProductId.Should().Be(dto.ProductId);
+    }
+
+    [Fact]
+    public void
+        Add_throw_MaximumAllowedProductStockNotObserved_when_maximum_allowable_product_inventory_is_not_observed()
+    {
+        var category = CategoryFactory.GenerateCategory("نوشیدنی");
+        _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
+        var product = new ProductBuilder().WithCategoryId(category.Id)
+            .Build();
+        _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
+        var dto = SaleInvoiceFactory.GenerateAddSaleInvoiceDto(product.Id);
+
+        var expected = () => _sut.Add(dto);
+
+        expected.Should()
+            .ThrowExactly<MaximumAllowableProductStockIsNotObserved>();
     }
 }

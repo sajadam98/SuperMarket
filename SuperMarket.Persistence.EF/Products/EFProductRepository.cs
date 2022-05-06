@@ -70,4 +70,13 @@ public class EFProductRepository : ProductRepository
                 MinimumAllowableStock = _.MinimumAllowableStock
             }).ToList();
     }
+
+    public bool IsNumberOfPurchaseAllowed(int productId,
+        int saleInvoiceCount)
+    {
+        var product = _dbContext.Set<Product>()
+            .Single(_ => _.Id == productId);
+        return product.Stock + saleInvoiceCount <=
+               product.MaximumAllowableStock;
+    }
 }
