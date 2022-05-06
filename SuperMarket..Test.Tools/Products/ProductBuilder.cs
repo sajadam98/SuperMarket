@@ -9,7 +9,7 @@ public class ProductBuilder
         CategoryId = 1,
         MinimumAllowableStock = 0,
         MaximumAllowableStock = 10,
-        Stock = 0
+        Stock = 10
     };
 
     public ProductBuilder WithName(string name)
@@ -29,9 +29,15 @@ public class ProductBuilder
         _product.CategoryId = categoryId;
         return this;
     }
+    public ProductBuilder WithStock(int stock)
+    {
+        _product.Stock = stock;
+        return this;
+    }
 
     public Product Build()
     {
         return _product;
     }
+
 }

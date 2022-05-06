@@ -61,4 +61,14 @@ public class ProductAppService : ProductService
         _repository.Update(product);
         _unitOfWork.Save();
     }
+
+    public IList<GetProductDto> GetAll()
+    {
+        return _repository.GetAll();
+    }
+
+    public IList<GetProductDto> GetAvailableProducts()
+    {
+        return _repository.GetAvailableProducts();
+    }
 }

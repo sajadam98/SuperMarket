@@ -13,7 +13,7 @@ public class GetAllCategories : EFDataContextDatabaseFixture
 {
     private readonly EFDataContext _dbContext;
     private Category _category;
-    private IList<GetCategoryDto> _categories;
+    private IList<GetCategoryDto> _expected;
 
     public GetAllCategories(ConfigurationFixture configuration) : base(
         configuration)
@@ -44,14 +44,15 @@ public class GetAllCategories : EFDataContextDatabaseFixture
             _productRepository,
             unitOfWork);
 
-        _categories = sut.GetAll();
+        _expected = sut.GetAll();
     }
 
     [Then(
         "باید دسته بندی با عنوان 'لبنیات' در فهرست دسته بندی ها را مشاهده کند")]
     public void Then()
     {
-        _categories.Should().Contain(_ =>
+        _expected.Should().HaveCount(1);
+        _expected.Should().Contain(_ =>
             _.Name == _category.Name && _.Id == _category.Id);
     }
 

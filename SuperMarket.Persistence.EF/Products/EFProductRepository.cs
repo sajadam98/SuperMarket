@@ -39,4 +39,35 @@ public class EFProductRepository : ProductRepository
     {
         _dbContext.Set<Product>().Update(product);
     }
+
+    public IList<GetProductDto> GetAll()
+    {
+        return _dbContext.Set<Product>().Select(_ => new GetProductDto
+        {
+            Brand = _.Brand,
+            Id = _.Id,
+            Name = _.Name,
+            Price = _.Price,
+            Stock = _.Stock,
+            ProductKey = _.ProductKey,
+            MaximumAllowableStock = _.MaximumAllowableStock,
+            MinimumAllowableStock = _.MinimumAllowableStock
+        }).ToList();
+    }
+
+    public IList<GetProductDto> GetAvailableProducts()
+    {
+        return _dbContext.Set<Product>().Where(_ => _.Stock > 0).Select(
+            _ => new GetProductDto
+            {
+                Brand = _.Brand,
+                Id = _.Id,
+                Name = _.Name,
+                Price = _.Price,
+                Stock = _.Stock,
+                ProductKey = _.ProductKey,
+                MaximumAllowableStock = _.MaximumAllowableStock,
+                MinimumAllowableStock = _.MinimumAllowableStock
+            }).ToList();
+    }
 }

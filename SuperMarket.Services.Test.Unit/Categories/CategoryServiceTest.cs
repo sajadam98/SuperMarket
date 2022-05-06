@@ -131,6 +131,7 @@ public class CategoryServiceTest
 
         var expected = _sut.GetAll();
 
+        expected.Should().HaveCount(1);
         expected.Should().Contain(_ =>
             _.Name == category.Name && _.Id == category.Id);
     }

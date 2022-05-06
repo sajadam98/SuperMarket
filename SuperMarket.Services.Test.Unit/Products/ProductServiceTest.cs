@@ -116,4 +116,51 @@ public class ProductServiceTest
 
         expected.Should().ThrowExactly<DuplicateProductKeyException>();
     }
+
+    [Fact]
+    public void GetAll_returns_products_properly()
+    {
+        var category = CategoryFactory.GenerateCategory("نوشیدنی");
+        _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
+        var product = new ProductBuilder().WithCategoryId(category.Id)
+            .Build();
+        _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
+
+        var expected = _sut.GetAll();
+
+        expected.Should().HaveCount(1);
+        expected!.Should().Contain(_ =>
+            _.Id == product.Id && _.Brand == product.Brand &&
+            _.Name == product.Name && _.Price == product.Price &&
+            _.Stock == product.Stock &&
+            _.ProductKey == product.ProductKey &&
+            _.MaximumAllowableStock == product.MaximumAllowableStock &&
+            _.MinimumAllowableStock == product.MinimumAllowableStock);
+    }
+
+    [Fact]
+    public void
+        GetAvailableProducts_returns_products_that_available_in_super_market_properly()
+    {
+        var category = CategoryFactory.GenerateCategory("نوشیدنی");
+        _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
+        var product = new ProductBuilder().WithCategoryId(category.Id)
+            .Build();
+        _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
+        var product2 = new ProductBuilder().WithCategoryId(category.Id)
+            .WithProductKey("4321").WithName("آب انبه").WithStock(0)
+            .Build();
+        _dbContext.Manipulate(_ => _.Set<Product>().Add(product2));
+
+        var expected = _sut.GetAvailableProducts();
+
+        expected.Should().HaveCount(1);
+        expected!.Should().Contain(_ =>
+            _.Id == product.Id && _.Brand == product.Brand &&
+            _.Name == product.Name && _.Price == product.Price &&
+            _.Stock == product.Stock &&
+            _.ProductKey == product.ProductKey &&
+            _.MaximumAllowableStock == product.MaximumAllowableStock &&
+            _.MinimumAllowableStock == product.MinimumAllowableStock);
+    }
 }
