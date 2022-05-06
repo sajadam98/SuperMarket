@@ -46,12 +46,74 @@ public class ProductServiceTest
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
         _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
-        var product = new ProductBuilder().WithCategoryId(category.Id).Build();
+        var product = new ProductBuilder().WithCategoryId(category.Id)
+            .Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
         var dto = ProductFactory.GenerateAddProductDto(category.Id);
 
         var expected = () => _sut.Add(dto);
-        
+
+        expected.Should().ThrowExactly<DuplicateProductKeyException>();
+    }
+
+    [Fact]
+    public void
+        Update_updates_product_properly()
+    {
+        var category = CategoryFactory.GenerateCategory("نوشیدنی");
+        _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
+        var product = new ProductBuilder().WithCategoryId(category.Id)
+            .Build();
+        _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
+        var dto =
+            ProductFactory.GenerateUpdateProductDto(category.Id, "4321");
+
+        _sut.Update(product.Id, dto);
+
+        var expected = _dbContext.Set<Product>().FirstOrDefault();
+        expected!.Name.Should().Be(dto.Name);
+        expected.Price.Should().Be(dto.Price);
+        expected.Stock.Should().Be(dto.Stock);
+        expected.CategoryId.Should().Be(dto.CategoryId);
+        expected.ProductKey.Should().Be(dto.ProductKey);
+        expected.MaximumAllowableStock.Should()
+            .Be(dto.MaximumAllowableStock);
+        expected.MinimumAllowableStock.Should()
+            .Be(dto.MinimumAllowableStock);
+        expected.Brand.Should().Be(dto.Brand);
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    public void
+        Update_throw_ProductNotFoundException_with_given_id(int id)
+    {
+        var dto =
+            ProductFactory.GenerateUpdateProductDto(id);
+
+        var expected = () => _sut.Update(id, dto);
+
+        expected.Should().ThrowExactly<ProductNotFoundException>();
+    }
+
+    [Fact]
+    public void
+        Update_throw_DuplicateProductKeyException_when_product_key_is_exist()
+    {
+        var category = CategoryFactory.GenerateCategory("نوشیدنی");
+        _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
+        var product = new ProductBuilder().WithCategoryId(category.Id)
+            .Build();
+        _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
+        var product2 = new ProductBuilder().WithCategoryId(category.Id)
+            .WithProductKey("4321").WithName("آب انبه")
+            .Build();
+        _dbContext.Manipulate(_ => _.Set<Product>().Add(product2));
+        var dto =
+            ProductFactory.GenerateUpdateProductDto(category.Id, "4321");
+
+        var expected = () => _sut.Update(product.Id, dto);
+
         expected.Should().ThrowExactly<DuplicateProductKeyException>();
     }
 }

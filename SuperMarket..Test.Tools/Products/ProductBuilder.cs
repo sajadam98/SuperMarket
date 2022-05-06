@@ -12,6 +12,12 @@ public class ProductBuilder
         Stock = 0
     };
 
+    public ProductBuilder WithName(string name)
+    {
+        _product.Name = name;
+        return this;
+    }
+
     public ProductBuilder WithProductKey(string productKey)
     {
         _product.ProductKey = productKey;

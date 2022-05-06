@@ -25,10 +25,7 @@ public class AddProduct : EFDataContextDatabaseFixture
         "دسته بندی با عنوان 'نوشیدنی' وجود دارد")]
     public void Given()
     {
-        _category = new Category
-        {
-            Name = "نوشیدنی"
-        };
+        _category = CategoryFactory.GenerateCategory("نوشیدنی");
         _dbContext.Manipulate(_ => _.Set<Category>().Add(_category));
     }
 
@@ -41,17 +38,7 @@ public class AddProduct : EFDataContextDatabaseFixture
     [When("کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و حداقل مجاز موجودی '0' و حداکثر موجودی مجاز '10' و تعداد موجودی '0' تعریف میکنم")]
     public void When()
     {
-        _dto = new AddProductDto
-        {
-            Name = "آب سیب",
-            ProductKey = "1234",
-            Price = 25000,
-            Brand = "سن ایچ",
-            CategoryId = _category.Id,
-            MinimumAllowableStock = 0,
-            MaximumAllowableStock = 10,
-            Stock = 0
-        };
+        _dto = ProductFactory.GenerateAddProductDto(_category.Id);
         var unitOfWork = new EFUnitOfWork(_dbContext);
         ProductRepository productRepository =
             new EFProductRepository(_dbContext);

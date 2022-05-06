@@ -12,11 +12,13 @@ public class ProductAppService : ProductService
 
     public void Add(AddProductDto dto)
     {
-        var isProductKeyExist = _repository.IsProductKeyExist(dto.ProductKey);
+        var isProductKeyExist =
+            _repository.IsProductKeyExistDuringAdd(dto.ProductKey);
         if (isProductKeyExist)
         {
             throw new DuplicateProductKeyException();
         }
+
         var product = new Product
         {
             Brand = dto.Brand,
@@ -29,6 +31,34 @@ public class ProductAppService : ProductService
             MinimumAllowableStock = dto.MinimumAllowableStock,
         };
         _repository.Add(product);
+        _unitOfWork.Save();
+    }
+
+    public void Update(int id, UpdateProductDto dto)
+    {
+        var isProductKeyExist =
+            _repository.IsProductKeyExistDuringUpdate(id,dto.ProductKey);
+        if (isProductKeyExist)
+        {
+            throw new DuplicateProductKeyException();
+        }
+
+        var product = _repository.Find(id);
+        if (product == null)
+        {
+            throw new ProductNotFoundException();
+        }
+
+        product.Name = dto.Name;
+        product.Brand = dto.Brand;
+        product.Price = dto.Price;
+        product.Stock = dto.Stock;
+        product.CategoryId = dto.CategoryId;
+        product.ProductKey = dto.ProductKey;
+        product.MaximumAllowableStock = dto.MaximumAllowableStock;
+        product.MinimumAllowableStock = dto.MinimumAllowableStock;
+        
+        _repository.Update(product);
         _unitOfWork.Save();
     }
 }

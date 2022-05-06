@@ -9,7 +9,8 @@ public class EFProductRepository : ProductRepository
 
     public bool IsCategoryContainProduct(int categoryId)
     {
-        return _dbContext.Set<Product>().Any(_ => _.CategoryId == categoryId);
+        return _dbContext.Set<Product>()
+            .Any(_ => _.CategoryId == categoryId);
     }
 
     public void Add(Product product)
@@ -17,8 +18,25 @@ public class EFProductRepository : ProductRepository
         _dbContext.Set<Product>().Add(product);
     }
 
-    public bool IsProductKeyExist(string productKey)
+    public bool IsProductKeyExistDuringAdd(string productKey)
     {
-        return _dbContext.Set<Product>().Any(_ => _.ProductKey == productKey);
+        return _dbContext.Set<Product>()
+            .Any(_ => _.ProductKey == productKey);
+    }
+
+    public bool IsProductKeyExistDuringUpdate(int id, string productKey)
+    {
+        return _dbContext.Set<Product>().Where(_ => _.Id != id)
+            .Any(_ => _.ProductKey == productKey);
+    }
+
+    public Product Find(int id)
+    {
+        return _dbContext.Set<Product>().FirstOrDefault(_ => _.Id == id);
+    }
+
+    public void Update(Product product)
+    {
+        _dbContext.Set<Product>().Update(product);
     }
 }
