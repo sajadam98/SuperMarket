@@ -12,6 +12,11 @@ public class ProductAppService : ProductService
 
     public void Add(AddProductDto dto)
     {
+        var isProductKeyExist = _repository.IsProductKeyExist(dto.ProductKey);
+        if (isProductKeyExist)
+        {
+            throw new DuplicateProductKeyException();
+        }
         var product = new Product
         {
             Brand = dto.Brand,
