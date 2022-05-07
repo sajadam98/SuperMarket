@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using FluentAssertions;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.Utilities;
 using SuperMarket._Test.Tools.EntryDocuments;
 using Xunit;
 using static BDDHelper;
@@ -25,7 +23,7 @@ public class GetAllEntryDocuments : EFDataContextDatabaseFixture
     }
 
     [Given(
-        "تنها یک سند با تاریخ صدور '16/04/1400' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '50' با قیمت فی '18000' و مجموع قیمت '900000' و تاریخ تولید '16/04/1400' و تاریخ انقضا '16/10/1400' در فهرست سندها وجود دارد")]
+        "تنها یک سند با تاریخ صدور '16/04/1900' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '50' با قیمت فی '18000' و مجموع قیمت '900000' و تاریخ تولید '16/04/1900' و تاریخ انقضا '16/10/1900' در فهرست سندها وجود دارد")]
     public void Given()
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
@@ -53,7 +51,7 @@ public class GetAllEntryDocuments : EFDataContextDatabaseFixture
     }
 
     [Then(
-        "درخواست مشاهده فهرست سندها را میدهم.بنابریان: باید سندی با تاریخ صدور '16/04/1400' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '50' با قیمت فی '18000' و مجموع قیمت '900000' و تاریخ تولید '16/04/1400' و تاریخ انقضا '16/10/1400' در فهرست سندها مشاهده کنم")]
+        "درخواست مشاهده فهرست سندها را میدهم.بنابریان: باید سندی با تاریخ صدور '16/04/1900' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '50' با قیمت فی '18000' و مجموع قیمت '900000' و تاریخ تولید '16/04/1900' و تاریخ انقضا '16/10/1900' در فهرست سندها مشاهده کنم")]
     public void Then()
     {
         _expected.Should().HaveCount(1);

@@ -106,15 +106,8 @@ public class CategoryServiceTest
     {
         var category = CategoryFactory.GenerateCategory();
         _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
-        var product = new Product
-        {
-            Name = "انرژی زا",
-            ProductKey = "1234",
-            Price = 25000,
-            Brand = "سن ایچ",
-            CategoryId = category.Id,
-            MaximumAllowableStock = 10,
-        };
+        var product = new ProductBuilder().WithCategoryId(category.Id)
+            .WithName("انرژی زا").Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
 
         var expected = () => _sut.Delete(category.Id);
@@ -123,8 +116,7 @@ public class CategoryServiceTest
     }
 
     [Fact]
-    public void
-        GetAll_retutns_categories_properly()
+    public void GetAll_returns_categories_properly()
     {
         var category = CategoryFactory.GenerateCategory();
         _dbContext.Manipulate(_ => _.Set<Category>().Add(category));

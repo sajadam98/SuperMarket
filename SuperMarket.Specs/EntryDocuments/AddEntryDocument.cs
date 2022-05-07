@@ -1,4 +1,3 @@
-using System;
 using FluentAssertions;
 using SuperMarket._Test.Tools.EntryDocuments;
 using Xunit;
@@ -35,7 +34,7 @@ public class AddEntryDocument : EFDataContextDatabaseFixture
     }
 
     [When(
-        "سندی با تاریخ صدور '16/04/1400' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '50' با قیمت فی '18000' و تاریخ تولید '16/04/1400' و تاریخ انقضا '16/10/1400' را تعریف می کنم")]
+        "سندی با تاریخ صدور '16/04/1900' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '50' با قیمت فی '18000' و تاریخ تولید '16/04/1900' و تاریخ انقضا '16/10/1900' را تعریف می کنم")]
     public void When()
     {
         _dto = EntryDocumentFactory.GenerateAddEntryDocumentDto(
@@ -67,7 +66,7 @@ public class AddEntryDocument : EFDataContextDatabaseFixture
     }
 
     [And(
-        "سندی با تاریخ '16/04/1400' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '50' با قیمت فی '18000'و تاریخ تولید '16/04/1400' و تاریخ انقضا '16/10/1400' وجود داشته باشد")]
+        "سندی با تاریخ '16/04/1900' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '50' با قیمت فی '18000'و تاریخ تولید '16/04/1900' و تاریخ انقضا '16/10/1900' وجود داشته باشد")]
     public void AndThen()
     {
         _dbContext.Set<EntryDocument>().Should().Contain(_ =>

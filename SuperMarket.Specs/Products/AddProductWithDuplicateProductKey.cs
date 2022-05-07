@@ -26,10 +26,7 @@ public class
         "دسته بندی با عنوان 'نوشیدنی' وجود دارد")]
     public void Given()
     {
-        _category = new Category
-        {
-            Name = "نوشیدنی"
-        };
+        _category = CategoryFactory.GenerateCategory("نوشیدنی");
         _dbContext.Manipulate(_ => _.Set<Category>().Add(_category));
     }
 
@@ -37,17 +34,8 @@ public class
         "کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و حداقل مجاز موجودی '0' و حداکثر موجودی مجاز '10' و تعداد موجودی '0' وجود دارد")]
     public void AndGiven()
     {
-        var product = new Product
-        {
-            Name = "آب سیب",
-            ProductKey = "1234",
-            Price = 25000,
-            Brand = "سن ایچ",
-            CategoryId = _category.Id,
-            MinimumAllowableStock = 0,
-            MaximumAllowableStock = 10,
-            Stock = 0
-        };
+        var product = new ProductBuilder().WithCategoryId(_category.Id)
+            .WithStock(0).Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
     }
 
@@ -55,17 +43,8 @@ public class
         "کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و حداقل مجاز موجودی '0' و حداکثر موجودی مجاز '10' و تعداد موجودی '0' تعریف میکنم")]
     public void When()
     {
-        var dto = new AddProductDto
-        {
-            Name = "آب سیب",
-            ProductKey = "1234",
-            Price = 25000,
-            Brand = "سن ایچ",
-            CategoryId = _category.Id,
-            MinimumAllowableStock = 0,
-            MaximumAllowableStock = 10,
-            Stock = 0
-        };
+        var dto = ProductFactory.GenerateAddProductDto(_category.Id);
+        dto.Stock = 0;
         var unitOfWork = new EFUnitOfWork(_dbContext);
         ProductRepository productRepository =
             new EFProductRepository(_dbContext);

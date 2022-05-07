@@ -7,9 +7,9 @@ using static BDDHelper;
 
 [Scenario("مشاهده فهرست کالاهای کم مشتری")]
 [Feature("",
-    AsA = "",
-    IWantTo = "",
-    InOrderTo = ""
+    AsA = "فروشنده",
+    IWantTo = "فهرست کالاهای پرفروش را مشاهده کنم",
+    InOrderTo = "فروش کالا را مدیریت کنم"
 )]
 public class GetBestSellersProducts : EFDataContextDatabaseFixture
 {

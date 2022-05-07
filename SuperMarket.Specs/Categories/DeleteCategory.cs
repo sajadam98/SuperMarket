@@ -23,10 +23,7 @@ public class DeleteCategory : EFDataContextDatabaseFixture
         "دسته بندی با عنوان 'لبنیات' در فهرست دسته بندی ها وجود دارد")]
     public void Given()
     {
-        _category = new Category
-        {
-            Name = "لبنیات"
-        };
+        _category = CategoryFactory.GenerateCategory();
         _dbContext.Manipulate(_ => _.Set<Category>().Add(_category));
     }
 
@@ -36,9 +33,9 @@ public class DeleteCategory : EFDataContextDatabaseFixture
         var unitOfWork = new EFUnitOfWork(_dbContext);
         CategoryRepository categoryRepository =
             new EFCategoryRepository(_dbContext);
-        ProductRepository _productRepository =
+        ProductRepository productRepository =
             new EFProductRepository(_dbContext);
-        CategoryService sut = new CategoryAppService(categoryRepository, _productRepository,
+        CategoryService sut = new CategoryAppService(categoryRepository, productRepository,
             unitOfWork);
 
         sut.Delete(_category.Id);

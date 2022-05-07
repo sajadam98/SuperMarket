@@ -29,27 +29,21 @@ public class
         "دسته بندی با عنوان 'لبنیات' در فهرست دسته بندی ها وجود داشته باشد")]
     public void Given()
     {
-        _category = new Category
-        {
-            Name = "لبنیات"
-        };
-
+        _category = CategoryFactory.GenerateCategory();
         _dbContext.Manipulate(_ => _.Set<Category>().Add(_category));
     }
 
     [When("دسته بندی با عنوان 'لبنیات' تعریف میکنم")]
     public void When()
     {
-        _dto = new AddCategoryDto()
-        {
-            Name = "لبنیات"
-        };
+        _dto = CategoryFactory.GenerateAddCategoryDto();
         var unitOfWork = new EFUnitOfWork(_dbContext);
         CategoryRepository categoryRepository =
             new EFCategoryRepository(_dbContext);
         ProductRepository _productRepository =
             new EFProductRepository(_dbContext);
-        CategoryService sut = new CategoryAppService(categoryRepository, _productRepository,
+        CategoryService sut = new CategoryAppService(categoryRepository,
+            _productRepository,
             unitOfWork);
 
         _expected = () => sut.Add(_dto);

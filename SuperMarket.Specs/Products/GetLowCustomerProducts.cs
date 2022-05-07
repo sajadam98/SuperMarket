@@ -1,15 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using SuperMarket._Test.Tools.EntryDocuments;
 using Xunit;
 using static BDDHelper;
 
 [Scenario("مشاهده فهرست کالاهای کم مشتری")]
 [Feature("",
-    AsA = "",
-    IWantTo = "",
-    InOrderTo = ""
+    AsA = "فروشنده",
+    IWantTo = "فهرست کالاهای کم مشتری را مشاهده کنم",
+    InOrderTo = "فروش کالا را مدیریت کنم"
 )]
 public class GetLowCustomerProducts : EFDataContextDatabaseFixture
 {

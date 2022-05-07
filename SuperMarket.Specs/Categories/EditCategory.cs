@@ -25,11 +25,7 @@ public class EditCategory : EFDataContextDatabaseFixture
         "دسته بندی با عنوان 'لبنیات' در فهرست دسته بندی ها وجود دارد")]
     public void Given()
     {
-        _category = new Category
-        {
-            Name = "لبنیات"
-        };
-
+        _category = CategoryFactory.GenerateCategory();
         _dbContext.Manipulate(_ => _.Set<Category>().Add(_category));
     }
 
@@ -37,16 +33,14 @@ public class EditCategory : EFDataContextDatabaseFixture
         "دسته بندی با عنوان 'لبنیات' را به دسته بندی با عنوان 'خشکبار' ویرایش میکنم")]
     public void When()
     {
-        _dto = new UpdateCategoryDto
-        {
-            Name = "خشکبار"
-        };
+        _dto = CategoryFactory.GenerateUpdateCategoryDto();
         var unitOfWork = new EFUnitOfWork(_dbContext);
         CategoryRepository categoryRepository =
             new EFCategoryRepository(_dbContext);
-        ProductRepository _productRepository =
+        ProductRepository productRepository =
             new EFProductRepository(_dbContext);
-        CategoryService sut = new CategoryAppService(categoryRepository, _productRepository,
+        CategoryService sut = new CategoryAppService(categoryRepository,
+            productRepository,
             unitOfWork);
 
         sut.Update(_category.Id, _dto);
@@ -58,7 +52,7 @@ public class EditCategory : EFDataContextDatabaseFixture
     {
         var expected = _dbContext.Set<Category>().FirstOrDefault();
 
-        expected.Name.Should().Be(_dto.Name);
+        expected!.Name.Should().Be(_dto.Name);
     }
 
     [Fact]

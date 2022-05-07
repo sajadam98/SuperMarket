@@ -1,5 +1,4 @@
-﻿using System;
-using FluentAssertions;
+﻿using FluentAssertions;
 using SuperMarket._Test.Tools.EntryDocuments;
 using Xunit;
 

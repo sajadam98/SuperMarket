@@ -28,11 +28,7 @@ public class
         "دسته بندی با عنوان 'لبنیات' در فهرست دسته بندی ها وجود دارد")]
     public void Given()
     {
-        _category = new Category
-        {
-            Name = "لبنیات"
-        };
-
+        _category = CategoryFactory.GenerateCategory();
         _dbContext.Manipulate(_ => _.Set<Category>().Add(_category));
     }
 
@@ -40,11 +36,7 @@ public class
         "دسته بندی با عنوان 'خشکبار' در فهرست دسته بندی ها وجود دارد")]
     public void AndGiven()
     {
-        var category = new Category
-        {
-            Name = "خشکبار"
-        };
-
+        var category = CategoryFactory.GenerateCategory();
         _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
     }
 
@@ -52,16 +44,14 @@ public class
         "دسته بندی با عنوان 'لبنیات' را به دسته بندی با عنوان 'خشکبار' ویرایش میکنم")]
     public void When()
     {
-        var dto = new UpdateCategoryDto
-        {
-            Name = "خشکبار"
-        };
+        var dto = CategoryFactory.GenerateUpdateCategoryDto();
         var unitOfWork = new EFUnitOfWork(_dbContext);
         CategoryRepository categoryRepository =
             new EFCategoryRepository(_dbContext);
-        ProductRepository _productRepository =
+        ProductRepository productRepository =
             new EFProductRepository(_dbContext);
-        CategoryService sut = new CategoryAppService(categoryRepository, _productRepository,
+        CategoryService sut = new CategoryAppService(categoryRepository,
+            productRepository,
             unitOfWork);
 
         _expected = () => sut.Update(_category.Id, dto);

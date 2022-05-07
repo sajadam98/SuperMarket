@@ -26,10 +26,7 @@ public class DeleteCategoryWithProduct : EFDataContextDatabaseFixture
         "دسته بندی با عنوان 'نوشیدنی' در فهرست دسته بندی ها وجود دارد")]
     public void Given()
     {
-        _category = new Category
-        {
-            Name = "لبنیات"
-        };
+        _category = CategoryFactory.GenerateCategory("نوشیدنی");
         _dbContext.Manipulate(_ => _.Set<Category>().Add(_category));
     }
 
@@ -37,15 +34,7 @@ public class DeleteCategoryWithProduct : EFDataContextDatabaseFixture
         "الایی با عنوان 'انرژی زا' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' و حداکثر تعداد موجودی '10' جز دسته بندی 'نوشیدنی' در فهرست کالاها وجود دارد")]
     public void AndGiven()
     {
-        var product = new Product
-        {
-            Name = "انرژی زا",
-            ProductKey = "1234",
-            Price = 25000,
-            Brand = "سن ایچ",
-            CategoryId = _category.Id,
-            MaximumAllowableStock = 10,
-        };
+        var product = new ProductBuilder().WithCategoryId(_category.Id).WithName("انرژی زا").Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
     }
 
@@ -55,10 +44,10 @@ public class DeleteCategoryWithProduct : EFDataContextDatabaseFixture
         var unitOfWork = new EFUnitOfWork(_dbContext);
         CategoryRepository categoryRepository =
             new EFCategoryRepository(_dbContext);
-        ProductRepository _productRepository =
+        ProductRepository productRepository =
             new EFProductRepository(_dbContext);
         CategoryService sut = new CategoryAppService(categoryRepository,
-            _productRepository,
+            productRepository,
             unitOfWork);
 
         _expected = () => sut.Delete(_category.Id);

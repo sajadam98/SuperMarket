@@ -25,10 +25,7 @@ public class GetAllCategories : EFDataContextDatabaseFixture
         "تنها یک دسته بندی با عنوان 'لبنیات' در فهرست دسته بندی ها وجود دارد")]
     public void Given()
     {
-        _category = new Category
-        {
-            Name = "لبنیات"
-        };
+        _category = CategoryFactory.GenerateCategory();
         _dbContext.Manipulate(_ => _.Set<Category>().Add(_category));
     }
 
@@ -38,10 +35,10 @@ public class GetAllCategories : EFDataContextDatabaseFixture
         var unitOfWork = new EFUnitOfWork(_dbContext);
         CategoryRepository categoryRepository =
             new EFCategoryRepository(_dbContext);
-        ProductRepository _productRepository =
+        ProductRepository productRepository =
             new EFProductRepository(_dbContext);
         CategoryService sut = new CategoryAppService(categoryRepository,
-            _productRepository,
+            productRepository,
             unitOfWork);
 
         _expected = sut.GetAll();
