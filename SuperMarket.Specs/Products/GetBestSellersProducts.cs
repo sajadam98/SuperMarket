@@ -16,7 +16,8 @@ public class GetBestSellersProducts : EFDataContextDatabaseFixture
     private readonly EFDataContext _dbContext;
     private Category _category;
     private IList<GetProductDto> _expected;
-    private SalesInvoice _salesInvoice;
+    private Product _product;
+    private Product _product2;
 
     public GetBestSellersProducts(ConfigurationFixture configuration) :
         base(configuration)
@@ -25,31 +26,55 @@ public class GetBestSellersProducts : EFDataContextDatabaseFixture
     }
 
     [Given(
-        "فاکتوری با تاریخ صدور '16/04/1400' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '2' با قیمت '25000' و مجموع قیمت '50000' در فهرست فاکتورها وجو دارد")]
+        "فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '2' با قیمت '25000' و مجموع قیمت '50000' در فهرست فاکتورها وجو دارد")]
     public void Given()
     {
         _category = CategoryFactory.GenerateCategory("نوشیدنی");
-        var product = new ProductBuilder().Build();
-        product.Category = _category;
-        _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
-        _salesInvoice =
-            SaleInvoiceFactory.GenerateSaleInvoice(product.Id);
-        _salesInvoice.Count = 2;
+        _product = new ProductBuilder().Build();
+        _product.Category = _category;
+        _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
+        var salesInvoice =
+            SaleInvoiceFactory.GenerateSaleInvoice(_product.Id);
+        salesInvoice.Count = 2;
         _dbContext.Manipulate(
-            _ => _.Set<SalesInvoice>().Add(_salesInvoice));
+            _ => _.Set<SalesInvoice>().Add(salesInvoice));
     }
 
     [And(
-        "فاکتوری با تاریخ صدور '16/04/1400' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'پنیر' و کدکالا '1345' و تعداد خرید '1' با قیمت '25000' و مجموع قیمت '50000' در فهرست فاکتورها وجود دارد")]
+        "فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'پنیر' و کدکالا '1345' و تعداد خرید '1' با قیمت '25000' و مجموع قیمت '50000' در فهرست فاکتورها وجود دارد")]
     public void AndGiven()
     {
-        var product = new ProductBuilder().WithProductKey("1345").Build();
-        product.Category = _category;
-        _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
-        var saleInvoice =
-            SaleInvoiceFactory.GenerateSaleInvoice(product.Id);
-        saleInvoice.Count = 1;
-        _dbContext.Manipulate(_ => _.Set<SalesInvoice>().Add(saleInvoice));
+        _product2 = new ProductBuilder().WithProductKey("1345").Build();
+        _product2.Category = _category;
+        _dbContext.Manipulate(_ => _.Set<Product>().Add(_product2));
+        var salesInvoice =
+            SaleInvoiceFactory.GenerateSaleInvoice(_product2.Id);
+        salesInvoice.Count = 1;
+        _dbContext.Manipulate(_ =>
+            _.Set<SalesInvoice>().Add(salesInvoice));
+    }
+
+    [And(
+        "فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '3' با قیمت '25000' و مجموع قیمت '50000' در فهرست فاکتورها وجو دارد")]
+    public void AndGiven2()
+    {
+        _category = CategoryFactory.GenerateCategory("نوشیدنی");
+        var salesInvoice =
+            SaleInvoiceFactory.GenerateSaleInvoice(_product.Id);
+        salesInvoice.Count = 3;
+        _dbContext.Manipulate(
+            _ => _.Set<SalesInvoice>().Add(salesInvoice));
+    }
+
+    [And(
+        "فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'پنیر' و کدکالا '1345' و تعداد خرید '1' با قیمت '25000' و مجموع قیمت '50000' در فهرست فاکتورها وجود دارد")]
+    public void AndGiven3()
+    {
+        var salesInvoice =
+            SaleInvoiceFactory.GenerateSaleInvoice(_product2.Id);
+        salesInvoice.Count = 1;
+        _dbContext.Manipulate(_ =>
+            _.Set<SalesInvoice>().Add(salesInvoice));
     }
 
     [When("درخواست مشاهده فهرست کالاهای کم مشتری را میدهم")]
@@ -65,7 +90,7 @@ public class GetBestSellersProducts : EFDataContextDatabaseFixture
         ProductService sut = new ProductAppService(productRepository,
             entryDocumentFactory, saleInvoiceRepository, unitOfWork);
 
-        _expected = sut.GetLowCustomerProducts();
+        _expected = sut.GetBestSellersProducts();
     }
 
     [Then(
@@ -73,16 +98,16 @@ public class GetBestSellersProducts : EFDataContextDatabaseFixture
     public void Then()
     {
         _expected.Should().HaveCount(2);
-        _expected.First().Price.Should().Be(_salesInvoice.Product.Price);
-        _expected.First().Brand.Should().Be(_salesInvoice.Product.Brand);
-        _expected.First().Name.Should().Be(_salesInvoice.Product.Name);
+        _expected.First().Price.Should().Be(_product.Price);
+        _expected.First().Brand.Should().Be(_product.Brand);
+        _expected.First().Name.Should().Be(_product.Name);
         _expected.First().ProductKey.Should()
-            .Be(_salesInvoice.Product.ProductKey);
-        _expected.First().Stock.Should().Be(_salesInvoice.Product.Stock);
+            .Be(_product.ProductKey);
+        _expected.First().Stock.Should().Be(_product.Stock);
         _expected.First().MaximumAllowableStock.Should()
-            .Be(_salesInvoice.Product.MaximumAllowableStock);
+            .Be(_product.MaximumAllowableStock);
         _expected.First().MinimumAllowableStock.Should()
-            .Be(_salesInvoice.Product.MinimumAllowableStock);
+            .Be(_product.MinimumAllowableStock);
     }
 
     [Fact]
@@ -91,6 +116,8 @@ public class GetBestSellersProducts : EFDataContextDatabaseFixture
         Runner.RunScenario(
             _ => Given()
             , _ => AndGiven()
+            , _ => AndGiven2()
+            , _ => AndGiven3()
             , _ => When()
             , _ => Then());
     }

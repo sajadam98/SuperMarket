@@ -9,4 +9,5 @@ public class GetProductDto
     public int MinimumAllowableStock { get; set; }
     public int MaximumAllowableStock { get; set; }
     public int Stock { get; set; }
+    public int Count { get; set; }  
 }

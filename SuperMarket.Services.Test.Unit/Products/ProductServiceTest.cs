@@ -204,6 +204,10 @@ public class ProductServiceTest
             .Build();
         product.Category = category;
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
+        var product2 = new ProductBuilder().WithName("آب انبه")
+            .Build();
+        product2.Category = category;
+        _dbContext.Manipulate(_ => _.Set<Product>().Add(product2));
         var salesInvoice = SaleInvoiceFactory.GenerateSaleInvoice();
         salesInvoice.Product = product;
         salesInvoice.Count = 2;
@@ -211,9 +215,19 @@ public class ProductServiceTest
             _.Set<SalesInvoice>().Add(salesInvoice));
         var salesInvoice2 = SaleInvoiceFactory.GenerateSaleInvoice();
         salesInvoice2.Product = product;
-        salesInvoice2.Count = 1;
+        salesInvoice2.Count = 3;
         _dbContext.Manipulate(_ =>
             _.Set<SalesInvoice>().Add(salesInvoice2));
+        var salesInvoice3 = SaleInvoiceFactory.GenerateSaleInvoice();
+        salesInvoice3.Product = product2;
+        salesInvoice3.Count = 1;
+        _dbContext.Manipulate(_ =>
+            _.Set<SalesInvoice>().Add(salesInvoice3));
+        var salesInvoice4 = SaleInvoiceFactory.GenerateSaleInvoice();
+        salesInvoice4.Product = product2;
+        salesInvoice4.Count = 2;
+        _dbContext.Manipulate(_ =>
+            _.Set<SalesInvoice>().Add(salesInvoice4));
 
         var expected = _sut.GetLowCustomerProducts();
 

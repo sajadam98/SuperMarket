@@ -36,7 +36,7 @@ public class
         "دسته بندی با عنوان 'خشکبار' در فهرست دسته بندی ها وجود دارد")]
     public void AndGiven()
     {
-        var category = CategoryFactory.GenerateCategory();
+        var category = CategoryFactory.GenerateCategory("خشکبار");
         _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
     }
 

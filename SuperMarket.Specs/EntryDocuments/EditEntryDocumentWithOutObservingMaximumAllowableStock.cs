@@ -1,4 +1,5 @@
-﻿using System.Linq;
+using System;
+using System.Linq;
 using FluentAssertions;
 using SuperMarket._Test.Tools.EntryDocuments;
 using Xunit;
@@ -10,25 +11,27 @@ using static BDDHelper;
     IWantTo = "سند ورود را ویرایش کنم",
     InOrderTo = "فروش کالا را مدیریت کنم"
 )]
-public class EditEntryDocument : EFDataContextDatabaseFixture
+public class
+    EditEntryDocumentWithOutObservingMaximumAllowableStock :
+        EFDataContextDatabaseFixture
 {
     private readonly EFDataContext _dbContext;
     private Product _product;
-    private UpdateEntryDocumentDto _dto;
     private EntryDocument _entryDocument;
+    private Action _expected;
 
-    public EditEntryDocument(ConfigurationFixture configuration) : base(
-        configuration)
+    public EditEntryDocumentWithOutObservingMaximumAllowableStock(
+        ConfigurationFixture configuration) : base(configuration)
     {
         _dbContext = CreateDataContext();
     }
 
     [Given(
-        "کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و حداقل مجاز موجودی '0' و حداکثر موجودی مجاز '100' و تعداد موجودی '10' در فهرست کالا ها وجود دارد")]
+        "کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و حداقل مجاز موجودی '0' و حداکثر موجودی مجاز '20' و تعداد موجودی '10' در فهرست کالا ها وجود دارد")]
     public void Given()
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
-        _product = new ProductBuilder().WithMaximumAllowableStock(100)
+        _product = new ProductBuilder().WithMaximumAllowableStock(20)
             .Build();
         _product.Category = category;
         _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
@@ -49,7 +52,7 @@ public class EditEntryDocument : EFDataContextDatabaseFixture
         "سندی با تاریخ صدور '16/04/1400' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '50' با قیمت فی '18000' و تاریخ تولید '16/04/1400' و تاریخ انقضا '16/10/1400' را به سندی با تاریخ صدور '16/04/1400' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '30' با قیمت فی '20000' و تاریخ تولید '16/04/1400' و تاریخ انقضا '16/10/1400' ویرایش میکنم")]
     public void When()
     {
-        _dto = EntryDocumentFactory.GenerateUpdateEntryDocumentDto(
+        var dto = EntryDocumentFactory.GenerateUpdateEntryDocumentDto(
             _product.Id);
         UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
         EntryDocumentRepository repository =
@@ -60,37 +63,28 @@ public class EditEntryDocument : EFDataContextDatabaseFixture
             new EntryDocumentAppService(repository, productRepository,
                 unitOfWork);
 
-        sut.Update(_entryDocument.Id, _dto);
+        _expected = () => sut.Update(_entryDocument.Id, dto);
     }
 
     [Then(
-        "باید کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و تعداد موجودی '40' در فهرست کالا ها وجود داشته باشد")]
+        "سندی با تاریخ صدور '16/04/1400' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '10' با قیمت فی '18000' و تاریخ تولید '16/04/1400' و تاریخ انقضا '16/10/1400' در فهرست سندها وجود داشته باشد")]
     public void Then()
     {
-        var expected = _dbContext.Set<Product>()
-            .FirstOrDefault(_ => _.Id == _product.Id);
-        expected!.Name.Should().Be(_product.Name);
-        expected.Price.Should().Be(_product.Price);
-        expected.Stock.Should().Be(_product.Stock);
-        expected.Brand.Should().Be(_product.Brand);
-        expected.CategoryId.Should().Be(_product.CategoryId);
-        expected.ProductKey.Should().Be(_product.ProductKey);
-        expected.MinimumAllowableStock.Should()
-            .Be(_product.MinimumAllowableStock);
-        expected.MaximumAllowableStock.Should()
-            .Be(_product.MaximumAllowableStock);
+        _dbContext.Set<EntryDocument>().Should().Contain(_ =>
+            _.Count == _entryDocument.Count &&
+            _.ProductId == _entryDocument.ProductId &&
+            _.DateTime == _entryDocument.DateTime &&
+            _.ExpirationDate == _entryDocument.ExpirationDate &&
+            _.ManufactureDate == _entryDocument.ManufactureDate &&
+            _.PurchasePrice == _entryDocument.PurchasePrice);
     }
 
     [And(
-        "سندی با تاریخ صدور '16/04/1400' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '30' با قیمت فی '20000' و تاریخ تولید '16/04/1400' و تاریخ انقضا '16/10/1400' در فهرست سندها وجود داشته باشد")]
+        "باید خطایی با عنوان 'سقف مجاز موجودی محصول رعایت نشده است'، رخ دهد")]
     public void AndThen()
     {
-        var expected = _dbContext.Set<EntryDocument>().Should().Contain(
-            _ => _.Count == _dto.Count && _.ProductId == _dto.ProductId &&
-                 _.DateTime == _dto.DateTime &&
-                 _.ExpirationDate == _dto.ExpirationDate &&
-                 _.ManufactureDate == _dto.ManufactureDate &&
-                 _.PurchasePrice == _dto.PurchasePrice);
+        _expected.Should()
+            .ThrowExactly<MaximumAllowableStockNotObservedException>();
     }
 
     [Fact]

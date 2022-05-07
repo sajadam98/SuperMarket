@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+
 public class EFSaleInvoiceRepository : SaleInvoiceRepository
 {
     private readonly EFDataContext _dbContext;
@@ -54,35 +56,37 @@ public class EFSaleInvoiceRepository : SaleInvoiceRepository
 
     public IList<GetProductDto> GetLowCustomerProducts()
     {
-        return _dbContext.Set<SalesInvoice>()
-            .OrderBy(_ => _.Count).Select(_ => new GetProductDto
+        return _dbContext.Set<Product>()
+            .Select(_ => new GetProductDto
             {
-                Brand = _.Product.Brand,
-                Id = _.Product.Id,
-                Name = _.Product.Name,
-                Price = _.Product.Price,
-                Stock = _.Product.Stock,
-                ProductKey = _.Product.ProductKey,
+                Brand = _.Brand,
+                Id = _.Id,
+                Name = _.Name,
+                Price = _.Price,
+                Stock = _.Stock,
+                ProductKey = _.ProductKey,
                 MaximumAllowableStock =
-                    _.Product.MaximumAllowableStock,
-                MinimumAllowableStock = _.Product.MinimumAllowableStock
-            }).Distinct().ToList();
+                    _.MaximumAllowableStock,
+                MinimumAllowableStock = _.MinimumAllowableStock,
+                Count = _.SalesInvoices.Select(_ => _.Count).Sum()
+            }).OrderBy(_ => _.Count).ToList();
     }
 
     public IList<GetProductDto> GetBestSellersProducts()
     {
-        return _dbContext.Set<SalesInvoice>()
-            .OrderByDescending(_ => _.Count).Select(_ => new GetProductDto
+        return _dbContext.Set<Product>()
+            .Select(_ => new GetProductDto
             {
-                Brand = _.Product.Brand,
-                Id = _.Product.Id,
-                Name = _.Product.Name,
-                Price = _.Product.Price,
-                Stock = _.Product.Stock,
-                ProductKey = _.Product.ProductKey,
+                Brand = _.Brand,
+                Id = _.Id,
+                Name = _.Name,
+                Price = _.Price,
+                Stock = _.Stock,
+                ProductKey = _.ProductKey,
                 MaximumAllowableStock =
-                    _.Product.MaximumAllowableStock,
-                MinimumAllowableStock = _.Product.MinimumAllowableStock
-            }).Distinct().ToList();
+                    _.MaximumAllowableStock,
+                MinimumAllowableStock = _.MinimumAllowableStock,
+                Count = _.SalesInvoices.Select(_ => _.Count).Sum()
+            }).OrderByDescending(_ => _.Count).ToList();
     }
 }

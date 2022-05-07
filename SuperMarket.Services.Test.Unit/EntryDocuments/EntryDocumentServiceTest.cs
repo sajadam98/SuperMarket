@@ -130,4 +130,34 @@ public class EntryDocumentServiceTest
                  _.ManufactureDate == dto.ManufactureDate &&
                  _.PurchasePrice == dto.PurchasePrice);
     }
+
+    [Fact]
+    public void
+        Update_throw_MaximumAllowableStockNotObservedException_when_entry_count_plus_stock_is_bigger_than_maximum_allowable_stock()
+    {
+        var category = CategoryFactory.GenerateCategory("نوشیدنی");
+        var product = new ProductBuilder().WithMaximumAllowableStock(20)
+            .WithCategoryId(category.Id)
+            .Build();
+        product.Category = category;
+        var entryDocument = EntryDocumentFactory.GenerateEntryDocument();
+        entryDocument.Product = product;
+        entryDocument.Count = 10;
+        _dbContext.Manipulate(_ =>
+            _.Set<EntryDocument>().Add(entryDocument));
+        var dto = EntryDocumentFactory
+            .GenerateUpdateEntryDocumentDto(product.Id);
+
+        var expected = () => _sut.Update(entryDocument.Id, dto);
+
+        _dbContext.Set<EntryDocument>().Should().Contain(_ =>
+            _.Count == entryDocument.Count &&
+            _.ProductId == entryDocument.ProductId &&
+            _.DateTime == entryDocument.DateTime &&
+            _.ExpirationDate == entryDocument.ExpirationDate &&
+            _.ManufactureDate == entryDocument.ManufactureDate &&
+            _.PurchasePrice == entryDocument.PurchasePrice);
+        expected.Should()
+            .ThrowExactly<MaximumAllowableStockNotObservedException>();
+    }
 }

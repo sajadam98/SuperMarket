@@ -23,7 +23,7 @@ public class EntryDocumentFactory
     {
         return new UpdateEntryDocumentDto
         {
-            Count = 50,
+            Count = 30,
             ProductId = productId,
             DateTime = new DateTime(1900, 04, 16),
             ManufactureDate = new DateTime(1900, 04, 16),
