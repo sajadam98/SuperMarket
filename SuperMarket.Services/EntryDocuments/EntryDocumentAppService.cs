@@ -21,7 +21,6 @@ public class EntryDocumentAppService : EntryDocumentService
             ProductId = dto.ProductId,
             PurchasePrice = dto.PurchasePrice
         };
-        
         _repository.Add(entryDocument);
         _unitOfWork.Save();
     }

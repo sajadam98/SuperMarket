@@ -27,7 +27,8 @@ public class AddEntryDocument : EFDataContextDatabaseFixture
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
         _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
-        _product = new ProductBuilder().WithMaximumAllowableStock(100).WithCategoryId(category.Id)
+        _product = new ProductBuilder().WithMaximumAllowableStock(100)
+            .WithCategoryId(category.Id)
             .Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
     }
@@ -40,9 +41,9 @@ public class AddEntryDocument : EFDataContextDatabaseFixture
         {
             Count = 50,
             ProductId = _product.Id,
-            DateTime = new DateTime(1400, 04, 16),
-            ManufactureDate = new DateTime(1400, 04, 16),
-            ExpirationDate = new DateTime(1400, 10, 16),
+            DateTime = new DateTime(1900, 04, 16),
+            ManufactureDate = new DateTime(1900, 04, 16),
+            ExpirationDate = new DateTime(1900, 10, 16),
             PurchasePrice = 18000
         };
         UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
@@ -50,7 +51,7 @@ public class AddEntryDocument : EFDataContextDatabaseFixture
             new EFEntryDocumentRepository(_dbContext);
         EntryDocumentService sut =
             new EntryDocumentAppService(repository, unitOfWork);
-        
+
         sut.Add(_dto);
     }
 
@@ -62,7 +63,7 @@ public class AddEntryDocument : EFDataContextDatabaseFixture
             _.Brand == _product.Brand &&
             _.CategoryId == _product.CategoryId &&
             _.Name == _product.Name && _.Price == _product.Price &&
-            _.Stock == _product.Stock + _dto.Count &&
+            _.Stock == _product.Stock &&
             _.ProductKey == _product.ProductKey &&
             _.MaximumAllowableStock == _product.MaximumAllowableStock &&
             _.MinimumAllowableStock == _product.MinimumAllowableStock);

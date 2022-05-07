@@ -11,7 +11,7 @@ public class SaleInvoiceFactory
             Price = 25000,
             ProductId = productId,
             BuyerName = "علی علینقیپور",
-            DateTime = new DateTime(1400, 04, 16)
+            DateTime = new DateTime(1900, 04, 16)
         };
     }
     
@@ -23,7 +23,7 @@ public class SaleInvoiceFactory
             Price = 18000,
             ProductId = productId,
             BuyerName = "علی علینقیپور",
-            DateTime = new DateTime(1400, 04, 16)
+            DateTime = new DateTime(1900, 04, 16)
         };
     }
 }
