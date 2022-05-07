@@ -15,6 +15,18 @@ public class SaleInvoiceFactory
         };
     }
     
+    public static UpdateSaleInvoiceDto GenerateUpdatealeInvoiceDto(int productId)
+    {
+        return new UpdateSaleInvoiceDto
+        {
+            Count = 8,
+            Price = 24000,
+            ProductId = productId,
+            BuyerName = "علی علینقیپور",
+            DateTime = new DateTime(1900, 04, 16)
+        };
+    }
+    
     public static SalesInvoice GenerateSaleInvoice(int productId = 1)
     {
         return new SalesInvoice

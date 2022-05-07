@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 public class EFSaleInvoiceRepository : SaleInvoiceRepository
 {
     private readonly EFDataContext _dbContext;
@@ -88,5 +86,16 @@ public class EFSaleInvoiceRepository : SaleInvoiceRepository
                 MinimumAllowableStock = _.MinimumAllowableStock,
                 Count = _.SalesInvoices.Select(_ => _.Count).Sum()
             }).OrderByDescending(_ => _.Count).ToList();
+    }
+
+    public SalesInvoice Find(int id)
+    {
+        return _dbContext.Set<SalesInvoice>()
+            .FirstOrDefault(_ => _.Id == id);
+    }
+
+    public void Update(SalesInvoice salesInvoice)
+    {
+        _dbContext.Set<SalesInvoice>().Update(salesInvoice);
     }
 }

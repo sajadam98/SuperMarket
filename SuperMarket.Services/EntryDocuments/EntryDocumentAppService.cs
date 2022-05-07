@@ -34,6 +34,7 @@ public class EntryDocumentAppService : EntryDocumentService
             PurchasePrice = dto.PurchasePrice
         };
         _repository.Add(entryDocument);
+        entryDocument.Product.Stock += dto.Count;
         _unitOfWork.Save();
     }
 
@@ -42,13 +43,14 @@ public class EntryDocumentAppService : EntryDocumentService
         return _repository.GetAll();
     }
 
-    public void Update(int id,UpdateEntryDocumentDto dto)
+    public void Update(int id, UpdateEntryDocumentDto dto)
     {
         var entryDocument = _repository.Find(id);
         if (entryDocument == null)
         {
             throw new EntryDocumentNotFoundException();
         }
+
         var isMaximumAllowableStockNotObserved =
             _productRepository.IsMaximumAllowableStockNotObserved(
                 dto.ProductId,
@@ -57,7 +59,29 @@ public class EntryDocumentAppService : EntryDocumentService
         {
             throw new MaximumAllowableStockNotObservedException();
         }
+
         _repository.Update(entryDocument);
+        entryDocument.Product.Stock += dto.Count + entryDocument.Count;
+        _unitOfWork.Save();
+    }
+
+    public void Delete(int id)
+    {
+        var entryDocument = _repository.Find(id);
+        if (entryDocument == null)
+        {
+            throw new EntryDocumentNotFoundException();
+        }
+
+        var isMinimumAllowableStockNotObserved =
+            entryDocument.Product.Stock - entryDocument.Count <
+            entryDocument.Product.MinimumAllowableStock;
+        if (isMinimumAllowableStockNotObserved)
+        {
+            throw new MinimumAllowableStockNotObservedException();
+        }
+        _repository.Delete(entryDocument);
+        entryDocument.Product.Stock -= entryDocument.Count;
         _unitOfWork.Save();
     }
 }

@@ -61,4 +61,38 @@ public class SaleInvoiceServiceTest
         expected.Should()
             .ThrowExactly<AvailableProductStockNotObservedException>();
     }
+
+    [Fact]
+    public void Update_updates_sale_invoice_properly()
+    {
+        var category = CategoryFactory.GenerateCategory("نوشیدنی");
+        _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
+        var product = new ProductBuilder().WithCategoryId(category.Id)
+            .WithStock(10)
+            .Build();
+        var saleInvoice = SaleInvoiceFactory.GenerateSaleInvoice();
+        saleInvoice.Product = product;
+        saleInvoice.Count = 2;
+        _dbContext.Manipulate(_ => _.Set<SalesInvoice>().Add(saleInvoice));
+        var dto =
+            SaleInvoiceFactory.GenerateUpdatealeInvoiceDto(product.Id);
+
+        _sut.Update(saleInvoice.Id, dto);
+
+        _dbContext.Set<Product>().Should().Contain(_ =>
+            _.Brand == product.Brand && _.Id == product.Id &&
+            _.Name == product.Name && _.Price == product.Price &&
+            _.Stock == product.Stock &&
+            _.CategoryId == product.CategoryId &&
+            _.ProductKey == product.ProductKey &&
+            _.MaximumAllowableStock == product.MaximumAllowableStock &&
+            _.MinimumAllowableStock == product.MinimumAllowableStock);
+        var expected = _dbContext.Set<SalesInvoice>()
+            .FirstOrDefault(_ => _.Id == saleInvoice.Id);
+        expected!.Count.Should().Be(dto.Count);
+        expected.BuyerName.Should().Be(dto.BuyerName);
+        expected.Price.Should().Be(dto.Price);
+        expected.DateTime.Should().Be(dto.DateTime);
+        expected.ProductId.Should().Be(dto.ProductId);
+    }
 }

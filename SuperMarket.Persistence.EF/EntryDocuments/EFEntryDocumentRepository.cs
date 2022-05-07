@@ -62,4 +62,9 @@ public class EFEntryDocumentRepository : EntryDocumentRepository
         return _dbContext.Set<EntryDocument>()
             .FirstOrDefault(_ => _.Id == id);
     }
+
+    public void Delete(EntryDocument entryDocument)
+    {
+        _dbContext.Set<EntryDocument>().Remove(entryDocument);
+    }
 }

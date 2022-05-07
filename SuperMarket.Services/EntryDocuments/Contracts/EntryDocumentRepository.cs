@@ -5,4 +5,5 @@ public interface EntryDocumentRepository : Repository
     public int GetTotalPurchase();
     public void Update(EntryDocument entryDocument);
     public EntryDocument Find(int id);
+    public void Delete(EntryDocument entryDocument);
 }
