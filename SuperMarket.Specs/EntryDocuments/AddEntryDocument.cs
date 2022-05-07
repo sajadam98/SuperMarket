@@ -1,5 +1,6 @@
 using System;
 using FluentAssertions;
+using SuperMarket._Test.Tools.EntryDocuments;
 using Xunit;
 using static BDDHelper;
 
@@ -22,7 +23,7 @@ public class AddEntryDocument : EFDataContextDatabaseFixture
     }
 
     [Given(
-        "کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و تعداد موجودی '10' در فهرست کالا ها وجود دارد")]
+        "کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و حداقل تعداد موجودی '0' و حداکثر تعداد موجودی '100' و تعداد موجودی '10' در فهرست کالا ها وجود دارد")]
     public void Given()
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
@@ -37,20 +38,16 @@ public class AddEntryDocument : EFDataContextDatabaseFixture
         "سندی با تاریخ صدور '16/04/1400' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '50' با قیمت فی '18000' و تاریخ تولید '16/04/1400' و تاریخ انقضا '16/10/1400' را تعریف می کنم")]
     public void When()
     {
-        _dto = new AddEntryDocumentDto
-        {
-            Count = 50,
-            ProductId = _product.Id,
-            DateTime = new DateTime(1900, 04, 16),
-            ManufactureDate = new DateTime(1900, 04, 16),
-            ExpirationDate = new DateTime(1900, 10, 16),
-            PurchasePrice = 18000
-        };
+        _dto = EntryDocumentFactory.GenerateAddEntryDocumentDto(
+            _product.Id);
         UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
         EntryDocumentRepository repository =
             new EFEntryDocumentRepository(_dbContext);
+        ProductRepository productRepository =
+            new EFProductRepository(_dbContext);
         EntryDocumentService sut =
-            new EntryDocumentAppService(repository, unitOfWork);
+            new EntryDocumentAppService(repository, productRepository,
+                unitOfWork);
 
         sut.Add(_dto);
     }

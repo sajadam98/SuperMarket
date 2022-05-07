@@ -9,4 +9,5 @@ public interface ProductRepository : Repository
     public IList<GetProductDto> GetAll();
     public IList<GetProductDto> GetAvailableProducts();
     public bool IsNumberOfSaleAllowed(int productId, int saleInvoiceCount);
+    public bool IsMaximumAllowableStockNotObserved(int productId, int count);
 }

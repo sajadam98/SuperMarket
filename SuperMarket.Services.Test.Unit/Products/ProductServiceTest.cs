@@ -1,5 +1,6 @@
 using System.Linq;
 using FluentAssertions;
+using SuperMarket._Test.Tools.EntryDocuments;
 using Xunit;
 
 public class ProductServiceTest
@@ -14,8 +15,12 @@ public class ProductServiceTest
         UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
         ProductRepository repository =
             new EFProductRepository(_dbContext);
+        EntryDocumentRepository entryDocumentRepository =
+            new EFEntryDocumentRepository(_dbContext);
+        SaleInvoiceRepository saleInvoiceRepository =
+            new EFSaleInvoiceRepository(_dbContext);
         _sut = new ProductAppService(repository,
-            unitOfWork);
+            entryDocumentRepository, saleInvoiceRepository, unitOfWork);
     }
 
     [Fact]
@@ -162,5 +167,57 @@ public class ProductServiceTest
             _.ProductKey == product.ProductKey &&
             _.MaximumAllowableStock == product.MaximumAllowableStock &&
             _.MinimumAllowableStock == product.MinimumAllowableStock);
+    }
+    
+    [Fact]
+    public void
+        GetProfitAndLossReport_returns_profit_or_loss_report()
+    {
+        var category = CategoryFactory.GenerateCategory("نوشیدنی");
+        var product = new ProductBuilder()
+            .Build();
+        product.Category = category;
+        _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
+        var saleInvoice = SaleInvoiceFactory.GenerateSaleInvoice();
+        saleInvoice.Product = product;
+        saleInvoice.Count = 2;
+        _dbContext.Manipulate(_ =>
+            _.Set<SalesInvoice>().Add(saleInvoice));
+        var entryDocument =
+            EntryDocumentFactory.GenerateEntryDocument(product.Id);
+        _dbContext.Manipulate(_ =>
+            _.Set<EntryDocument>().Add(entryDocument));
+
+        var expected = _sut.GetProfitAndLossReport();
+
+        expected.Should().Be(saleInvoice.Count * saleInvoice.Price -
+                             entryDocument.Count *
+                             entryDocument.PurchasePrice);
+    }
+    
+    [Fact]
+    public void
+        GetLowCustomerProducts_returns_products_that_less_sold_than_the_rest()
+    {
+        var category = CategoryFactory.GenerateCategory("نوشیدنی");
+        var product = new ProductBuilder()
+            .Build();
+        product.Category = category;
+        _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
+        var salesInvoice = SaleInvoiceFactory.GenerateSaleInvoice();
+        salesInvoice.Product = product;
+        salesInvoice.Count = 2;
+        _dbContext.Manipulate(_ =>
+            _.Set<SalesInvoice>().Add(salesInvoice));
+        var salesInvoice2 = SaleInvoiceFactory.GenerateSaleInvoice();
+        salesInvoice2.Product = product;
+        salesInvoice2.Count = 1;
+        _dbContext.Manipulate(_ =>
+            _.Set<SalesInvoice>().Add(salesInvoice2));
+
+        var expected = _sut.GetLowCustomerProducts();
+
+        expected.Should().HaveCount(2);
+        expected.First().Price.Should().Be(salesInvoice2.Price);
     }
 }

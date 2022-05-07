@@ -22,7 +22,7 @@ public class GetAvailableProducts : EFDataContextDatabaseFixture
     {
         _dbContext = CreateDataContext();
     }
-    
+
     [Given(
         "کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و حداقل مجاز موجودی '0' و حداکثر موجودی مجاز '10' و تعداد موجودی '10' وجود دارد")]
     public void Given()
@@ -33,13 +33,14 @@ public class GetAvailableProducts : EFDataContextDatabaseFixture
             .Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
     }
-    
+
     [And(
         "کالایی با عنوان 'آب انبه' و کدکالا '4321' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و حداقل مجاز موجودی '0' و حداکثر موجودی مجاز '10' و تعداد موجودی '0' وجود دارد")]
     public void AndGiven()
     {
         _dbContext.Manipulate(_ => _.Set<Category>().Add(_category));
-        var product = new ProductBuilder().WithCategoryId(_category.Id).WithName("آب انبه").WithProductKey("4321").WithStock(0)
+        var product = new ProductBuilder().WithCategoryId(_category.Id)
+            .WithName("آب انبه").WithProductKey("4321").WithStock(0)
             .Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
     }
@@ -51,8 +52,12 @@ public class GetAvailableProducts : EFDataContextDatabaseFixture
         var unitOfWork = new EFUnitOfWork(_dbContext);
         ProductRepository productRepository =
             new EFProductRepository(_dbContext);
+        EntryDocumentRepository entryDocumentRepository =
+            new EFEntryDocumentRepository(_dbContext);
+        SaleInvoiceRepository saleInvoiceRepository =
+            new EFSaleInvoiceRepository(_dbContext);
         ProductService sut = new ProductAppService(productRepository,
-            unitOfWork);
+            entryDocumentRepository, saleInvoiceRepository, unitOfWork);
 
         _expected = sut.GetAvailableProducts();
     }

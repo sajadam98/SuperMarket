@@ -1,17 +1,28 @@
 public class EntryDocumentAppService : EntryDocumentService
 {
     private readonly EntryDocumentRepository _repository;
+    private readonly ProductRepository _productRepository;
     private readonly UnitOfWork _unitOfWork;
 
     public EntryDocumentAppService(EntryDocumentRepository repository,
+        ProductRepository productRepository,
         UnitOfWork unitOfWork)
     {
         _repository = repository;
+        _productRepository = productRepository;
         _unitOfWork = unitOfWork;
     }
 
     public void Add(AddEntryDocumentDto dto)
     {
+        var isMaximumAllowableStockNotObserved =
+            _productRepository.IsMaximumAllowableStockNotObserved(dto.ProductId,
+                dto.Count);
+        if (isMaximumAllowableStockNotObserved)
+        {
+            throw new MaximumAllowableStockNotObservedException();
+        }
+
         var entryDocument = new EntryDocument
         {
             Count = dto.Count,
@@ -23,5 +34,10 @@ public class EntryDocumentAppService : EntryDocumentService
         };
         _repository.Add(entryDocument);
         _unitOfWork.Save();
+    }
+
+    public IList<GetEntryDocumentDto> GetAll()
+    {
+        return _repository.GetAll();
     }
 }

@@ -56,7 +56,7 @@ public class AddSaleInvoice : EFDataContextDatabaseFixture
     {
         var expected = _dbContext.Set<Product>()
             .FirstOrDefault(_ => _.Id == _product.Id);
-        expected!.Stock.Should().Be(_product.Stock - _dto.Count);
+        expected!.Stock.Should().Be(_product.Stock);
     }
 
     [And(

@@ -40,8 +40,12 @@ public class GetAllProducts : EFDataContextDatabaseFixture
         var unitOfWork = new EFUnitOfWork(_dbContext);
         ProductRepository productRepository =
             new EFProductRepository(_dbContext);
+        EntryDocumentRepository entryDocumentRepository =
+            new EFEntryDocumentRepository(_dbContext);
+        SaleInvoiceRepository saleInvoiceRepository =
+            new EFSaleInvoiceRepository(_dbContext);
         ProductService sut = new ProductAppService(productRepository,
-            unitOfWork);
+            entryDocumentRepository, saleInvoiceRepository, unitOfWork);
 
         _expected = sut.GetAll();
     }

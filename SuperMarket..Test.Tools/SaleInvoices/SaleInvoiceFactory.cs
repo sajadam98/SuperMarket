@@ -15,12 +15,12 @@ public class SaleInvoiceFactory
         };
     }
     
-    public static SalesInvoice GenerateSaleInvoice(int productId)
+    public static SalesInvoice GenerateSaleInvoice(int productId = 1)
     {
         return new SalesInvoice
         {
             Count = 50,
-            Price = 18000,
+            Price = 25000,
             ProductId = productId,
             BuyerName = "علی علینقیپور",
             DateTime = new DateTime(1900, 04, 16)

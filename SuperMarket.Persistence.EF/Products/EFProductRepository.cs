@@ -78,4 +78,12 @@ public class EFProductRepository : ProductRepository
             .Single(_ => _.Id == productId);
         return product.Stock - saleInvoiceCount >= 0;
     }
+
+    public bool IsMaximumAllowableStockNotObserved(int productId,
+        int count)
+    {
+        var product = _dbContext.Set<Product>()
+            .Single(_ => _.Id == productId);
+        return product.Stock + count > product.MaximumAllowableStock;
+    }
 }

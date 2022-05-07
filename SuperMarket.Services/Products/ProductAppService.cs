@@ -1,12 +1,18 @@
 public class ProductAppService : ProductService
 {
     private readonly ProductRepository _repository;
+    private readonly EntryDocumentRepository _entryDocumentRepository;
+    private readonly SaleInvoiceRepository _saleInvoiceRepository;
     private readonly UnitOfWork _unitOfWork;
 
     public ProductAppService(ProductRepository repository,
+        EntryDocumentRepository entryDocumentRepository,
+        SaleInvoiceRepository saleInvoiceRepository,
         UnitOfWork unitOfWork)
     {
         _repository = repository;
+        _entryDocumentRepository = entryDocumentRepository;
+        _saleInvoiceRepository = saleInvoiceRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -37,7 +43,7 @@ public class ProductAppService : ProductService
     public void Update(int id, UpdateProductDto dto)
     {
         var isProductKeyExist =
-            _repository.IsProductKeyExistDuringUpdate(id,dto.ProductKey);
+            _repository.IsProductKeyExistDuringUpdate(id, dto.ProductKey);
         if (isProductKeyExist)
         {
             throw new DuplicateProductKeyException();
@@ -57,7 +63,7 @@ public class ProductAppService : ProductService
         product.ProductKey = dto.ProductKey;
         product.MaximumAllowableStock = dto.MaximumAllowableStock;
         product.MinimumAllowableStock = dto.MinimumAllowableStock;
-        
+
         _repository.Update(product);
         _unitOfWork.Save();
     }
@@ -70,5 +76,24 @@ public class ProductAppService : ProductService
     public IList<GetProductDto> GetAvailableProducts()
     {
         return _repository.GetAvailableProducts();
+    }
+
+    public int GetProfitAndLossReport()
+    {
+        var entryDocumentsTotalPurchase =
+            _entryDocumentRepository.GetTotalPurchase();
+        var saleInvoicesTotalPrice =
+            _saleInvoiceRepository.GetTotalPrice();
+        return saleInvoicesTotalPrice - entryDocumentsTotalPurchase;
+    }
+
+    public IList<GetProductDto> GetLowCustomerProducts()
+    {
+        return _saleInvoiceRepository.GetLowCustomerProducts();
+    }
+
+    public IList<GetProductDto> GetBestSellersProducts()
+    {
+        return _saleInvoiceRepository.GetBestSellersProducts();
     }
 }
