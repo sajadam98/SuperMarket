@@ -16,7 +16,8 @@ public class EntryDocumentAppService : EntryDocumentService
     public void Add(AddEntryDocumentDto dto)
     {
         var isMaximumAllowableStockNotObserved =
-            _productRepository.IsMaximumAllowableStockNotObserved(dto.ProductId,
+            _productRepository.IsMaximumAllowableStockNotObserved(
+                dto.ProductId,
                 dto.Count);
         if (isMaximumAllowableStockNotObserved)
         {
@@ -39,5 +40,24 @@ public class EntryDocumentAppService : EntryDocumentService
     public IList<GetEntryDocumentDto> GetAll()
     {
         return _repository.GetAll();
+    }
+
+    public void Update(int id,UpdateEntryDocumentDto dto)
+    {
+        var entryDocument = _repository.Find(id);
+        if (entryDocument == null)
+        {
+            throw new EntryDocumentNotFoundException();
+        }
+        var isMaximumAllowableStockNotObserved =
+            _productRepository.IsMaximumAllowableStockNotObserved(
+                dto.ProductId,
+                dto.Count - entryDocument.Count);
+        if (isMaximumAllowableStockNotObserved)
+        {
+            throw new MaximumAllowableStockNotObservedException();
+        }
+        _repository.Update(entryDocument);
+        _unitOfWork.Save();
     }
 }

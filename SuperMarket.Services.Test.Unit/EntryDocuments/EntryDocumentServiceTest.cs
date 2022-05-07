@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Linq;
+using FluentAssertions;
 using SuperMarket._Test.Tools.EntryDocuments;
 using Xunit;
 
@@ -91,5 +92,42 @@ public class EntryDocumentServiceTest
             _.ExpirationDate == entryDocument.ExpirationDate &&
             _.ManufactureDate == entryDocument.ManufactureDate &&
             _.PurchasePrice == entryDocument.PurchasePrice);
+    }
+
+    [Fact]
+    public void Update_updates_entry_document_properly()
+    {
+        var category = CategoryFactory.GenerateCategory("نوشیدنی");
+        var product = new ProductBuilder().WithMaximumAllowableStock(100)
+            .WithCategoryId(category.Id)
+            .Build();
+        product.Category = category;
+        var entryDocument = EntryDocumentFactory.GenerateEntryDocument();
+        entryDocument.Product = product;
+        _dbContext.Manipulate(_ =>
+            _.Set<EntryDocument>().Add(entryDocument));
+        var dto = EntryDocumentFactory
+            .GenerateUpdateEntryDocumentDto(product.Id);
+
+        _sut.Update(entryDocument.Id, dto);
+
+        var expected = _dbContext.Set<Product>()
+            .FirstOrDefault(_ => _.Id == product.Id);
+        expected!.Name.Should().Be(product.Name);
+        expected.Price.Should().Be(product.Price);
+        expected.Stock.Should().Be(product.Stock);
+        expected.Brand.Should().Be(product.Brand);
+        expected.CategoryId.Should().Be(product.CategoryId);
+        expected.ProductKey.Should().Be(product.ProductKey);
+        expected.MinimumAllowableStock.Should()
+            .Be(product.MinimumAllowableStock);
+        expected.MaximumAllowableStock.Should()
+            .Be(product.MaximumAllowableStock);
+        _dbContext.Set<EntryDocument>().Should().Contain(
+            _ => _.Count == dto.Count && _.ProductId == dto.ProductId &&
+                 _.DateTime == dto.DateTime &&
+                 _.ExpirationDate == dto.ExpirationDate &&
+                 _.ManufactureDate == dto.ManufactureDate &&
+                 _.PurchasePrice == dto.PurchasePrice);
     }
 }

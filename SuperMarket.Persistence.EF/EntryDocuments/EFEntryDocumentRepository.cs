@@ -42,12 +42,24 @@ public class EFEntryDocumentRepository : EntryDocumentRepository
     public int GetTotalPurchase()
     {
         var totalPrice = 0;
-        var entryDocumentsPrice = _dbContext.Set<EntryDocument>().Select(_ => _.Count * _.PurchasePrice);
+        var entryDocumentsPrice = _dbContext.Set<EntryDocument>()
+            .Select(_ => _.Count * _.PurchasePrice);
         foreach (var item in entryDocumentsPrice)
         {
             totalPrice += item;
         }
 
         return totalPrice;
+    }
+
+    public void Update(EntryDocument entryDocument)
+    {
+        _dbContext.Set<EntryDocument>().Update(entryDocument);
+    }
+
+    public EntryDocument Find(int id)
+    {
+        return _dbContext.Set<EntryDocument>()
+            .FirstOrDefault(_ => _.Id == id);
     }
 }
