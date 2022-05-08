@@ -27,9 +27,9 @@ public class EditProduct : EFDataContextDatabaseFixture
     public void Given()
     {
         _category = CategoryFactory.GenerateCategory("نوشیدنی");
-        _dbContext.Manipulate(_ => _.Set<Category>().Add(_category));
         _product = new ProductBuilder().WithCategoryId(_category.Id)
             .Build();
+        _product.Category = _category;
         _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
     }
 
@@ -38,6 +38,7 @@ public class EditProduct : EFDataContextDatabaseFixture
     public void When()
     {
         _dto = ProductFactory.GenerateUpdateProductDto(_category.Id,"4321");
+        _dto.Name = "آب آلبالو";
         var unitOfWork = new EFUnitOfWork(_dbContext);
         ProductRepository productRepository =
             new EFProductRepository(_dbContext);

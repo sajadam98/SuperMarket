@@ -7,7 +7,6 @@ public class SaleInvoiceFactory
     {
         return new AddSaleInvoiceDto
         {
-            Count = 5,
             Price = 25000,
             ProductId = productId,
             BuyerName = "علی علینقیپور",
@@ -19,7 +18,6 @@ public class SaleInvoiceFactory
     {
         return new UpdateSaleInvoiceDto
         {
-            Count = 8,
             Price = 24000,
             ProductId = productId,
             BuyerName = "علی علینقیپور",
@@ -31,7 +29,6 @@ public class SaleInvoiceFactory
     {
         return new SalesInvoice
         {
-            Count = 50,
             Price = 25000,
             ProductId = productId,
             BuyerName = "علی علینقیپور",

@@ -42,6 +42,7 @@ public class
     public void When()
     {
         _dto = SaleInvoiceFactory.GenerateAddSaleInvoiceDto(_product.Id);
+        _dto.Count = 8;
         var unitOfWork = new EFUnitOfWork(_dbContext);
         SaleInvoiceRepository saleInvoiceRepository =
             new EFSaleInvoiceRepository(_dbContext);

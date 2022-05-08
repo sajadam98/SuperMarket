@@ -27,6 +27,7 @@ public class DeleteEntryDocument : EFDataContextDatabaseFixture
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
         _product = new ProductBuilder().WithMaximumAllowableStock(100)
+            .WithStock(10).WithMinimumAllowableStock(0)
             .Build();
         _product.Category = category;
         _entryDocument = EntryDocumentFactory.GenerateEntryDocument();
@@ -36,7 +37,8 @@ public class DeleteEntryDocument : EFDataContextDatabaseFixture
             _.Set<EntryDocument>().Add(_entryDocument));
     }
 
-    [When("سندی با تاریخ صدور '16/04/1900' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '10' با قیمت فی '18000' و تاریخ تولید '16/04/1900' و تاریخ انقضا '16/10/1900' را حذف میکنم")]
+    [When(
+        "سندی با تاریخ صدور '16/04/1900' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '10' با قیمت فی '18000' و تاریخ تولید '16/04/1900' و تاریخ انقضا '16/10/1900' را حذف میکنم")]
     public void When()
     {
         UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
@@ -51,7 +53,8 @@ public class DeleteEntryDocument : EFDataContextDatabaseFixture
         sut.Delete(_entryDocument.Id);
     }
 
-    [Then("باید کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و تعداد موجودی '10' در فهرست کالا ها وجود داشته باشد")]
+    [Then(
+        "باید کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و تعداد موجودی '10' در فهرست کالا ها وجود داشته باشد")]
     public void Then()
     {
         _dbContext.Set<Product>().Should().Contain(_ =>
@@ -64,7 +67,8 @@ public class DeleteEntryDocument : EFDataContextDatabaseFixture
             _.MinimumAllowableStock == _product.MinimumAllowableStock);
     }
 
-    [And("نباید سندی با تاریخ صدور '16/04/1900' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '10' با قیمت فی '18000' و تاریخ تولید '16/04/1900' و تاریخ انقضا '16/10/1900' در فهرست سندها وجود داشته باشد")]
+    [And(
+        "نباید سندی با تاریخ صدور '16/04/1900' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '10' با قیمت فی '18000' و تاریخ تولید '16/04/1900' و تاریخ انقضا '16/10/1900' در فهرست سندها وجود داشته باشد")]
     public void AndThen()
     {
         _dbContext.Set<EntryDocument>().Should().NotContain(_ =>

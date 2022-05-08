@@ -6,10 +6,6 @@ public class ProductBuilder
         ProductKey = "1234",
         Price = 25000,
         Brand = "سن ایچ",
-        CategoryId = 1,
-        MinimumAllowableStock = 0,
-        MaximumAllowableStock = 10,
-        Stock = 10
     };
 
     public ProductBuilder WithName(string name)
@@ -39,6 +35,12 @@ public class ProductBuilder
     public ProductBuilder WithMaximumAllowableStock(int max)
     {
         _product.MaximumAllowableStock = max;
+        return this;
+    }
+    
+    public ProductBuilder WithMinimumAllowableStock(int min)
+    {
+        _product.MinimumAllowableStock = min;
         return this;
     }
 

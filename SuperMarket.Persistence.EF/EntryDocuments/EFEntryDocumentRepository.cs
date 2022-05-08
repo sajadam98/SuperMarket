@@ -60,7 +60,7 @@ public class EFEntryDocumentRepository : EntryDocumentRepository
     public EntryDocument Find(int id)
     {
         return _dbContext.Set<EntryDocument>()
-            .FirstOrDefault(_ => _.Id == id);
+            .Find(id);
     }
 
     public void Delete(EntryDocument entryDocument)

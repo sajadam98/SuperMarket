@@ -19,7 +19,7 @@
 
     public Category Find(int id)
     {
-        return _dbContext.Set<Category>().FirstOrDefault(_ => _.Id == id);
+        return _dbContext.Set<Category>().Find(id);
     }
 
     public void Update(Category category)

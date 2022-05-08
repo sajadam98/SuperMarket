@@ -29,10 +29,7 @@ public class AddCategory : EFDataContextDatabaseFixture
     [When("دسته بندی با عنوان 'لبنیات' تعریف میکنم")]
     public void When()
     {
-        _dto = new AddCategoryDto()
-        {
-            Name = "لبنیات"
-        };
+        _dto = CategoryFactory.GenerateAddCategoryDto();
         var unitOfWork = new EFUnitOfWork(_dbContext);
         CategoryRepository categoryRepository =
             new EFCategoryRepository(_dbContext);
@@ -51,7 +48,7 @@ public class AddCategory : EFDataContextDatabaseFixture
     {
         var expected = _dbContext.Set<Category>().FirstOrDefault();
 
-        expected.Name.Should().Be(_dto.Name);
+        expected!.Name.Should().Be(_dto.Name);
     }
 
     [Fact]

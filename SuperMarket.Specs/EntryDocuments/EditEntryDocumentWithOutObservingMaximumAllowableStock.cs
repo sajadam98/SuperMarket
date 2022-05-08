@@ -32,6 +32,7 @@ public class
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
         _product = new ProductBuilder().WithMaximumAllowableStock(20)
+            .WithStock(10).WithMinimumAllowableStock(0)
             .Build();
         _product.Category = category;
         _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
@@ -54,6 +55,7 @@ public class
     {
         var dto = EntryDocumentFactory.GenerateUpdateEntryDocumentDto(
             _product.Id);
+        dto.Count = 30;
         UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
         EntryDocumentRepository repository =
             new EFEntryDocumentRepository(_dbContext);

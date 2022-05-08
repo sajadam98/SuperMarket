@@ -40,10 +40,10 @@ public class
         var unitOfWork = new EFUnitOfWork(_dbContext);
         CategoryRepository categoryRepository =
             new EFCategoryRepository(_dbContext);
-        ProductRepository _productRepository =
+        ProductRepository productRepository =
             new EFProductRepository(_dbContext);
         CategoryService sut = new CategoryAppService(categoryRepository,
-            _productRepository,
+            productRepository,
             unitOfWork);
 
         _expected = () => sut.Add(_dto);
@@ -52,7 +52,7 @@ public class
     [Then("باید تنها یک دسته بندی با عنوان 'لبنیات' وجود داشته باشد")]
     public void Then()
     {
-        _dbContext.Set<Category>().Where(_ => _.Name == _dto.Name)
+        _dbContext.Set<Category>().Where(_ => _.Name == _category.Name)
             .Should().HaveCount(1);
     }
 

@@ -37,6 +37,7 @@ public class
     {
         var dto = EntryDocumentFactory.GenerateAddEntryDocumentDto(
             _product.Id);
+        dto.Count = 50;
         UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
         EntryDocumentRepository repository =
             new EFEntryDocumentRepository(_dbContext);
@@ -50,8 +51,22 @@ public class
     }
 
     [Then(
-        "باید کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و تعداد موجودی '60' در فهرست کالا ها وجود داشته باشد")]
+        "باید کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و حداقل مجاز موجودی '0' و حداکثر موجودی مجاز '10' و تعداد موجودی '10' در فهرست کالا ها وجود داشته باشد")]
     public void Then()
+    {
+        _dbContext.Set<Product>().Should().Contain(_ =>
+            _.Brand == _product.Brand &&
+            _.CategoryId == _product.CategoryId &&
+            _.Name == _product.Name && _.Price == _product.Price &&
+            _.Stock == _product.Stock &&
+            _.ProductKey == _product.ProductKey &&
+            _.MaximumAllowableStock == _product.MaximumAllowableStock &&
+            _.MinimumAllowableStock == _product.MinimumAllowableStock);
+    }
+
+    [And(
+        "باید کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و تعداد موجودی '60' در فهرست کالا ها وجود داشته باشد")]
+    public void AndThen()
     {
         _expected.Should()
             .ThrowExactly<MaximumAllowableStockNotObservedException>();
@@ -63,6 +78,7 @@ public class
         Runner.RunScenario(
             _ => Given()
             , _ => When()
-            , _ => Then());
+            , _ => Then()
+            , _ => AndThen());
     }
 }

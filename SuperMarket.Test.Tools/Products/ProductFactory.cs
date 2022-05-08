@@ -8,9 +8,6 @@ public class ProductFactory
             Price = 25000,
             Brand = "سن ایچ",
             CategoryId = categoryId,
-            MinimumAllowableStock = 0,
-            MaximumAllowableStock = 10,
-            Stock = 0
         };
 
     public static UpdateProductDto
@@ -21,8 +18,5 @@ public class ProductFactory
         Price = 25000,
         Brand = "سن ایچ",
         CategoryId = categoryId,
-        MinimumAllowableStock = 0,
-        MaximumAllowableStock = 10,
-        Stock = 0
     };
 }

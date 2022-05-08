@@ -26,9 +26,10 @@ public class AddSaleInvoice : EFDataContextDatabaseFixture
     public void Given()
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
-        _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
         _product = new ProductBuilder().WithCategoryId(category.Id)
+            .WithStock(10).WithMaximumAllowableStock(10)
             .Build();
+        _product.Category = category;
         _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
     }
 

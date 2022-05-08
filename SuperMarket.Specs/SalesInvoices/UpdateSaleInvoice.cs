@@ -27,7 +27,9 @@ public class UpdateSaleInvoice : EFDataContextDatabaseFixture
     public void Given()
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
-        _product = new ProductBuilder().Build();
+        _product = new ProductBuilder().WithStock(10)
+            .WithMaximumAllowableStock(10).WithMinimumAllowableStock(0)
+            .Build();
         _product.Category = category;
         _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
     }
@@ -78,7 +80,8 @@ public class UpdateSaleInvoice : EFDataContextDatabaseFixture
         "فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '8' با قیمت '24000'  در فهرست فاکتورها وجود داشته باشد")]
     public void AndThen()
     {
-        var expected = _dbContext.Set<SalesInvoice>().FirstOrDefault(_ => _.Id==_salesInvoice.Id);
+        var expected = _dbContext.Set<SalesInvoice>()
+            .FirstOrDefault(_ => _.Id == _salesInvoice.Id);
         expected!.Count.Should().Be(_dto.Count);
         expected.BuyerName.Should().Be(_dto.BuyerName);
         expected.Price.Should().Be(_dto.Price);

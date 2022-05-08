@@ -12,7 +12,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperMarket.RestApi", "Supe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperMarket.Services.Test.Unit", "SuperMarket.Services.Test.Unit\SuperMarket.Services.Test.Unit.csproj", "{B7C857EC-AB79-4BE9-8F6E-AEBF69E3CABE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperMarket..Test.Tools", "SuperMarket..Test.Tools\SuperMarket..Test.Tools.csproj", "{D1DEA979-D77C-4E67-BD69-4E975ABDF864}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperMarket.Test.Tools", "SuperMarket.Test.Tools\SuperMarket.Test.Tools.csproj", "{D1DEA979-D77C-4E67-BD69-4E975ABDF864}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperMarket.Specs", "SuperMarket.Specs\SuperMarket.Specs.csproj", "{97B888B5-248C-4034-866F-A04F41157CB2}"
 EndProject

@@ -115,7 +115,8 @@ public class ProductServiceTest
             .Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product2));
         var dto =
-            ProductFactory.GenerateUpdateProductDto(category.Id, "4321");
+            ProductFactory.GenerateUpdateProductDto(category.Id,
+                product2.ProductKey);
 
         var expected = () => _sut.Update(product.Id, dto);
 
@@ -148,12 +149,14 @@ public class ProductServiceTest
         GetAvailableProducts_returns_products_that_available_in_super_market_properly()
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
-        _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
         var product = new ProductBuilder().WithCategoryId(category.Id)
+            .WithStock(10).WithMaximumAllowableStock(10)
             .Build();
+        product.Category = category;
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
         var product2 = new ProductBuilder().WithCategoryId(category.Id)
             .WithProductKey("4321").WithName("آب انبه").WithStock(0)
+            .WithMaximumAllowableStock(10)
             .Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product2));
 
@@ -168,7 +171,7 @@ public class ProductServiceTest
             _.MaximumAllowableStock == product.MaximumAllowableStock &&
             _.MinimumAllowableStock == product.MinimumAllowableStock);
     }
-    
+
     [Fact]
     public void
         GetProfitAndLossReport_returns_profit_or_loss_report()
@@ -194,7 +197,7 @@ public class ProductServiceTest
                              entryDocument.Count *
                              entryDocument.PurchasePrice);
     }
-    
+
     [Fact]
     public void
         GetLowCustomerProducts_returns_products_that_less_sold_than_the_rest()

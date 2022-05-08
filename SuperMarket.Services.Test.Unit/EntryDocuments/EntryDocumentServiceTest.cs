@@ -27,6 +27,7 @@ public class EntryDocumentServiceTest
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
         _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
         var product = new ProductBuilder().WithMaximumAllowableStock(100)
+            .WithMinimumAllowableStock(0).WithStock(10)
             .WithCategoryId(category.Id)
             .Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
@@ -63,6 +64,7 @@ public class EntryDocumentServiceTest
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
         var dto =
             EntryDocumentFactory.GenerateAddEntryDocumentDto(product.Id);
+        dto.Count = 50;
 
         var expected = () => _sut.Add(dto);
 
@@ -112,7 +114,7 @@ public class EntryDocumentServiceTest
 
         _sut.Update(entryDocument.Id, dto);
 
-        
+
         _dbContext.Set<Product>().Should().Contain(_ =>
             _.Brand == product.Brand &&
             _.CategoryId == product.CategoryId &&
@@ -127,7 +129,8 @@ public class EntryDocumentServiceTest
         expected.DateTime.Should().Be(entryDocument.DateTime);
         expected.ProductId.Should().Be(entryDocument.ProductId);
         expected.ExpirationDate.Should().Be(entryDocument.ExpirationDate);
-        expected.ManufactureDate.Should().Be(entryDocument.ManufactureDate);
+        expected.ManufactureDate.Should()
+            .Be(entryDocument.ManufactureDate);
         expected.PurchasePrice.Should().Be(entryDocument.PurchasePrice);
     }
 
@@ -137,6 +140,7 @@ public class EntryDocumentServiceTest
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
         var product = new ProductBuilder().WithMaximumAllowableStock(20)
+            .WithStock(10).WithMinimumAllowableStock(0)
             .WithCategoryId(category.Id)
             .Build();
         product.Category = category;
@@ -147,6 +151,7 @@ public class EntryDocumentServiceTest
             _.Set<EntryDocument>().Add(entryDocument));
         var dto = EntryDocumentFactory
             .GenerateUpdateEntryDocumentDto(product.Id);
+        dto.Count = 30;
 
         var expected = () => _sut.Update(entryDocument.Id, dto);
 

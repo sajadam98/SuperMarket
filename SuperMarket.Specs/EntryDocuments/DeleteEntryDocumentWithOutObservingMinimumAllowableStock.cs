@@ -4,7 +4,7 @@ using SuperMarket._Test.Tools.EntryDocuments;
 using Xunit;
 using static BDDHelper;
 
-[Scenario("حذف سند ورود")]
+[Scenario("حذف سند ورود بدون رعایت موجودی محصول")]
 [Feature("",
     AsA = "فروشنده",
     IWantTo = "سند ورود را حذف کنم",
@@ -27,22 +27,30 @@ public class
     }
 
     [Given(
-        "الایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و حداقل مجاز موجودی '0' و حداکثر موجودی مجاز '100' و تعداد موجودی '10' در فهرست کالا ها وجود دارد")]
+        "کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و حداقل مجاز موجودی '0' و حداکثر موجودی مجاز '100' و تعداد موجودی '10' در فهرست کالا ها وجود دارد")]
     public void Given()
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
         _product = new ProductBuilder().WithMaximumAllowableStock(100)
+            .WithStock(10).WithMinimumAllowableStock(0)
             .Build();
         _product.Category = category;
-        _entryDocument = EntryDocumentFactory.GenerateEntryDocument();
+        _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
+    }
+
+    [And(
+        "سندی با تاریخ صدور '16/04/1900' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '20' با قیمت فی '18000' و تاریخ تولید '16/04/1900' و تاریخ انقضا '16/10/1900' در فهرست سندها وجود دارد")]
+    public void AndGive()
+    {
+        _entryDocument =
+            EntryDocumentFactory.GenerateEntryDocument(_product.Id);
         _entryDocument.Count = 20;
-        _entryDocument.Product = _product;
         _dbContext.Manipulate(_ =>
             _.Set<EntryDocument>().Add(_entryDocument));
     }
 
     [When(
-        "سندی با تاریخ صدور '16/04/1900' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '10' با قیمت فی '18000' و تاریخ تولید '16/04/1900' و تاریخ انقضا '16/10/1900' را حذف میکنم")]
+        "سندی با تاریخ صدور '16/04/1900' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '20' با قیمت فی '18000' و تاریخ تولید '16/04/1900' و تاریخ انقضا '16/10/1900' را حذف میکنم")]
     public void When()
     {
         UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
@@ -84,6 +92,7 @@ public class
     {
         Runner.RunScenario(
             _ => Given()
+            , _ => AndGive()
             , _ => When()
             , _ => Then()
             , _ => AndThen());

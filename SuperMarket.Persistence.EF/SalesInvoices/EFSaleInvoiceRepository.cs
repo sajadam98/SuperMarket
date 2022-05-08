@@ -91,7 +91,7 @@ public class EFSaleInvoiceRepository : SaleInvoiceRepository
     public SalesInvoice Find(int id)
     {
         return _dbContext.Set<SalesInvoice>()
-            .FirstOrDefault(_ => _.Id == id);
+            .Find(id);
     }
 
     public void Update(SalesInvoice salesInvoice)

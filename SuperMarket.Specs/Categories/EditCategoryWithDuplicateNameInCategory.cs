@@ -58,8 +58,16 @@ public class
     }
 
     [Then(
-        "باید خطایی با عنوان 'عنوان دسته بندی تکراری است'، رخ دهد")]
+        "باید دسته بندی با عنوان 'لبنیات' در فهرست دسته بندی ها وجود داشته باشد")]
     public void Then()
+    {
+        _dbContext.Set<Category>().Should()
+            .Contain(_ => _.Name == _category.Name);
+    }
+
+    [And(
+        "باید خطایی با عنوان 'عنوان دسته بندی تکراری است'، رخ دهد")]
+    public void AndThen()
     {
         _expected.Should()
             .ThrowExactly<DuplicateCategoryNameInCategoryException>();
@@ -72,6 +80,7 @@ public class
             _ => Given()
             , _ => AndGiven()
             , _ => When()
-            , _ => Then());
+            , _ => Then()
+            , _ => AndThen());
     }
 }

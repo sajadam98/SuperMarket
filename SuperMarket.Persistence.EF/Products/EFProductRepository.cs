@@ -32,7 +32,7 @@ public class EFProductRepository : ProductRepository
 
     public Product Find(int id)
     {
-        return _dbContext.Set<Product>().FirstOrDefault(_ => _.Id == id);
+        return _dbContext.Set<Product>().Find(id);
     }
 
     public void Update(Product product)

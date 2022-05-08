@@ -28,6 +28,7 @@ public class AddEntryDocument : EFDataContextDatabaseFixture
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
         _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
         _product = new ProductBuilder().WithMaximumAllowableStock(100)
+            .WithMinimumAllowableStock(0).WithStock(10)
             .WithCategoryId(category.Id)
             .Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
@@ -39,6 +40,7 @@ public class AddEntryDocument : EFDataContextDatabaseFixture
     {
         _dto = EntryDocumentFactory.GenerateAddEntryDocumentDto(
             _product.Id);
+        _dto.Count = 50;
         UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
         EntryDocumentRepository repository =
             new EFEntryDocumentRepository(_dbContext);

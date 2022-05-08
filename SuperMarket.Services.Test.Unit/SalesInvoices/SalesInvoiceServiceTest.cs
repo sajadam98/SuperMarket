@@ -27,9 +27,12 @@ public class SalesInvoiceServiceTest
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
         _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
         var product = new ProductBuilder().WithCategoryId(category.Id)
+            .WithStock(10).WithMaximumAllowableStock(10)
+            .WithMinimumAllowableStock(0)
             .Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
         var dto = SaleInvoiceFactory.GenerateAddSaleInvoiceDto(product.Id);
+        dto.Count = 8;
 
         _sut.Add(dto);
 
@@ -55,7 +58,8 @@ public class SalesInvoiceServiceTest
             .Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
         var dto = SaleInvoiceFactory.GenerateAddSaleInvoiceDto(product.Id);
-
+        dto.Count = 8;
+        
         var expected = () => _sut.Add(dto);
 
         expected.Should()

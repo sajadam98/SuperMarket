@@ -65,7 +65,8 @@ public class CategoryServiceTest
         _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
         var category2 = CategoryFactory.GenerateCategory("خشکبار");
         _dbContext.Manipulate(_ => _.Set<Category>().Add(category2));
-        var dto = CategoryFactory.GenerateUpdateCategoryDto();
+        var dto =
+            CategoryFactory.GenerateUpdateCategoryDto(category2.Name);
 
         var expected = () => _sut.Update(category.Id, dto);
 

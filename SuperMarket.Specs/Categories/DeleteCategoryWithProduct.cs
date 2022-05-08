@@ -31,10 +31,10 @@ public class DeleteCategoryWithProduct : EFDataContextDatabaseFixture
     }
 
     [And(
-        "الایی با عنوان 'انرژی زا' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' و حداکثر تعداد موجودی '10' جز دسته بندی 'نوشیدنی' در فهرست کالاها وجود دارد")]
+        "کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' و حداکثر تعداد موجودی '10' جز دسته بندی 'نوشیدنی' در فهرست کالاها وجود دارد")]
     public void AndGiven()
     {
-        var product = new ProductBuilder().WithCategoryId(_category.Id).WithName("انرژی زا").Build();
+        var product = new ProductBuilder().WithCategoryId(_category.Id).Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
     }
 
@@ -53,9 +53,16 @@ public class DeleteCategoryWithProduct : EFDataContextDatabaseFixture
         _expected = () => sut.Delete(_category.Id);
     }
 
-    [Then(
-        "باید خطایی با عنوان 'دسته بندی دارای کالا را نمیتوان حذف کرد'، رخ دهد")]
+    [Then("باید دسته بندی با عنوان 'نوشیدنی' در فهرست دسته بندی ها وجود داشته باشد")]
     public void Then()
+    {
+        _dbContext.Set<Category>().Should()
+            .Contain(_ => _.Name == _category.Name);
+    }
+    
+    [And(
+        "باید خطایی با عنوان 'دسته بندی دارای کالا را نمیتوان حذف کرد'، رخ دهد")]
+    public void AndThen()
     {
         _expected.Should()
             .ThrowExactly<CategoryContainsProductException>();
@@ -68,6 +75,7 @@ public class DeleteCategoryWithProduct : EFDataContextDatabaseFixture
             _ => Given()
             , _ => AndGiven()
             , _ => When()
-            , _ => Then());
+            , _ => Then()
+            , _ => AndThen());
     }
 }

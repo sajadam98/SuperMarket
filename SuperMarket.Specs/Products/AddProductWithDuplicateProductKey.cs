@@ -15,6 +15,7 @@ public class
     private readonly EFDataContext _dbContext;
     private Category _category;
     private Action _expected;
+    private Product _product;
 
     public AddProductWithDuplicateProductKey(
         ConfigurationFixture configuration) : base(configuration)
@@ -34,9 +35,9 @@ public class
         "کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و حداقل مجاز موجودی '0' و حداکثر موجودی مجاز '10' و تعداد موجودی '0' وجود دارد")]
     public void AndGiven()
     {
-        var product = new ProductBuilder().WithCategoryId(_category.Id)
+        _product = new ProductBuilder().WithCategoryId(_category.Id)
             .WithStock(0).Build();
-        _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
+        _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
     }
 
     [When(
@@ -59,8 +60,21 @@ public class
     }
 
     [Then(
-        "باید خطایی با عنوان 'کد کالا تکراری است'، رخ دهد")]
+        "باید کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و حداقل مجاز موجودی '0' و حداکثر موجودی مجاز '10' و تعداد موجودی '0' وجود در فهرست کالاها وجود داشته باشد")]
     public void Then()
+    {
+        _dbContext.Set<Product>().Should().Contain(_ =>
+            _.Brand == _product.Brand && _.Name == _product.Name &&
+            _.Price == _product.Price && _.Stock == _product.Stock &&
+            _.CategoryId == _product.CategoryId &&
+            _.ProductKey == _product.ProductKey &&
+            _.MaximumAllowableStock == _product.MaximumAllowableStock &&
+            _.MinimumAllowableStock == _product.MinimumAllowableStock);
+    }
+
+    [And(
+        "و خطایی با عنوان 'کد کالا تکراری است'، رخ دهد")]
+    public void AndThen()
     {
         _expected.Should().ThrowExactly<DuplicateProductKeyException>();
     }
@@ -72,6 +86,7 @@ public class
             _ => Given()
             , _ => AndGiven()
             , _ => When()
-            , _ => Then());
+            , _ => Then()
+            , _ => AndThen());
     }
 }

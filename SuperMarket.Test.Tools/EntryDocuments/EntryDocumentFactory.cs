@@ -9,7 +9,6 @@ public class EntryDocumentFactory
     {
         return new AddEntryDocumentDto
         {
-            Count = 50,
             ProductId = productId,
             DateTime = new DateTime(1900, 04, 16),
             ManufactureDate = new DateTime(1900, 04, 16),
@@ -23,7 +22,6 @@ public class EntryDocumentFactory
     {
         return new UpdateEntryDocumentDto
         {
-            Count = 30,
             ProductId = productId,
             DateTime = new DateTime(1900, 04, 16),
             ManufactureDate = new DateTime(1900, 04, 16),
@@ -36,7 +34,6 @@ public class EntryDocumentFactory
     {
         return new EntryDocument
         {
-            Count = 50,
             ProductId = productId,
             DateTime = new DateTime(1900, 04, 16),
             ExpirationDate = new DateTime(1900, 10, 16),

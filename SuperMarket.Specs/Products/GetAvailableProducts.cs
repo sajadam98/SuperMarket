@@ -28,9 +28,11 @@ public class GetAvailableProducts : EFDataContextDatabaseFixture
     public void Given()
     {
         _category = CategoryFactory.GenerateCategory("نوشیدنی");
-        _dbContext.Manipulate(_ => _.Set<Category>().Add(_category));
         _product = new ProductBuilder().WithCategoryId(_category.Id)
+            .WithStock(10).WithMaximumAllowableStock(10)
+            .WithMinimumAllowableStock(0)
             .Build();
+        _product.Category = _category;
         _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
     }
 
@@ -38,10 +40,11 @@ public class GetAvailableProducts : EFDataContextDatabaseFixture
         "کالایی با عنوان 'آب انبه' و کدکالا '4321' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و حداقل مجاز موجودی '0' و حداکثر موجودی مجاز '10' و تعداد موجودی '0' وجود دارد")]
     public void AndGiven()
     {
-        _dbContext.Manipulate(_ => _.Set<Category>().Add(_category));
         var product = new ProductBuilder().WithCategoryId(_category.Id)
             .WithName("آب انبه").WithProductKey("4321").WithStock(0)
+            .WithMaximumAllowableStock(10).WithMinimumAllowableStock(0)
             .Build();
+        product.Category = _category;
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
     }
 
@@ -81,6 +84,7 @@ public class GetAvailableProducts : EFDataContextDatabaseFixture
     {
         Runner.RunScenario(
             _ => Given()
+            , _ => AndGiven()
             , _ => When()
             , _ => Then());
     }

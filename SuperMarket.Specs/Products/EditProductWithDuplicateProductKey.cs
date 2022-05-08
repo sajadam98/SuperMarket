@@ -23,7 +23,7 @@ public class
     {
         _dbContext = CreateDataContext();
     }
-    
+
     [Given(
         "کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و حداقل مجاز موجودی '0' و حداکثر موجودی مجاز '10'  و تعداد موجودی '0' وجود دارد")]
     public void Given()
@@ -34,11 +34,13 @@ public class
             .Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
     }
-    
-    [And("کالایی با عنوان 'آب انبه' و کدکالا '4321' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و حداقل مجاز موجودی '0' و حداکثر موجودی مجاز '10'  و تعداد موجودی '0' وجود دارد")]
+
+    [And(
+        "کالایی با عنوان 'آب انبه' و کدکالا '4321' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و حداقل مجاز موجودی '0' و حداکثر موجودی مجاز '10'  و تعداد موجودی '0' وجود دارد")]
     public void AndGiven()
     {
-        var product = new ProductBuilder().WithCategoryId(_category.Id).WithProductKey("4321").WithName("آب انبه")
+        var product = new ProductBuilder().WithCategoryId(_category.Id)
+            .WithProductKey("4321").WithName("آب انبه")
             .Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
     }
@@ -47,7 +49,8 @@ public class
         "کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و تعداد موجودی '0' را به کالایی با عنوان 'آب آلبالو' و کدکالا '4321' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و حداقل مجاز موجودی '0' و حداکثر موجودی مجاز '10' و تعداد موجودی '0' ویرایش میکنم")]
     public void When()
     {
-        var dto = ProductFactory.GenerateUpdateProductDto(_category.Id,"4321");
+        var dto =
+            ProductFactory.GenerateUpdateProductDto(_category.Id, "4321");
         var unitOfWork = new EFUnitOfWork(_dbContext);
         ProductRepository productRepository =
             new EFProductRepository(_dbContext);
@@ -61,9 +64,21 @@ public class
         _expected = () => sut.Update(_product.Id, dto);
     }
 
-    [Then(
-        "باید خطایی با عنوان 'کد کالا تکراری است'، رخ دهد")]
+    [Then("")]
     public void Then()
+    {
+        _dbContext.Set<Product>().Should().Contain(_ =>
+            _.Brand == _product.Brand && _.Name == _product.Name &&
+            _.Price == _product.Price && _.Stock == _product.Stock &&
+            _.CategoryId == _product.CategoryId &&
+            _.ProductKey == _product.ProductKey &&
+            _.MaximumAllowableStock == _product.MaximumAllowableStock &&
+            _.MinimumAllowableStock == _product.MinimumAllowableStock);
+    }
+
+    [And(
+        "باید خطایی با عنوان 'کد کالا تکراری است'، رخ دهد")]
+    public void AndThen()
     {
         _expected.Should().ThrowExactly<DuplicateProductKeyException>();
     }
@@ -75,6 +90,7 @@ public class
             _ => Given()
             , _ => AndGiven()
             , _ => When()
-            , _ => Then());
+            , _ => Then()
+            , _ => AndThen());
     }
 }
