@@ -103,6 +103,7 @@ public class EntryDocumentServiceTest
             .Build();
         product.Category = category;
         var entryDocument = EntryDocumentFactory.GenerateEntryDocument();
+        entryDocument.Count = 10;
         entryDocument.Product = product;
         _dbContext.Manipulate(_ =>
             _.Set<EntryDocument>().Add(entryDocument));
@@ -111,24 +112,23 @@ public class EntryDocumentServiceTest
 
         _sut.Update(entryDocument.Id, dto);
 
-        var expected = _dbContext.Set<Product>()
-            .FirstOrDefault(_ => _.Id == product.Id);
-        expected!.Name.Should().Be(product.Name);
-        expected.Price.Should().Be(product.Price);
-        expected.Stock.Should().Be(product.Stock);
-        expected.Brand.Should().Be(product.Brand);
-        expected.CategoryId.Should().Be(product.CategoryId);
-        expected.ProductKey.Should().Be(product.ProductKey);
-        expected.MinimumAllowableStock.Should()
-            .Be(product.MinimumAllowableStock);
-        expected.MaximumAllowableStock.Should()
-            .Be(product.MaximumAllowableStock);
-        _dbContext.Set<EntryDocument>().Should().Contain(
-            _ => _.Count == dto.Count && _.ProductId == dto.ProductId &&
-                 _.DateTime == dto.DateTime &&
-                 _.ExpirationDate == dto.ExpirationDate &&
-                 _.ManufactureDate == dto.ManufactureDate &&
-                 _.PurchasePrice == dto.PurchasePrice);
+        
+        _dbContext.Set<Product>().Should().Contain(_ =>
+            _.Brand == product.Brand &&
+            _.CategoryId == product.CategoryId &&
+            _.Name == product.Name && _.Price == product.Price &&
+            _.Stock == product.Stock &&
+            _.ProductKey == product.ProductKey &&
+            _.MaximumAllowableStock == product.MaximumAllowableStock &&
+            _.MinimumAllowableStock == product.MinimumAllowableStock);
+        var expected = _dbContext.Set<EntryDocument>()
+            .FirstOrDefault(_ => _.Id == entryDocument.Id);
+        expected!.Count.Should().Be(entryDocument.Count);
+        expected.DateTime.Should().Be(entryDocument.DateTime);
+        expected.ProductId.Should().Be(entryDocument.ProductId);
+        expected.ExpirationDate.Should().Be(entryDocument.ExpirationDate);
+        expected.ManufactureDate.Should().Be(entryDocument.ManufactureDate);
+        expected.PurchasePrice.Should().Be(entryDocument.PurchasePrice);
     }
 
     [Fact]

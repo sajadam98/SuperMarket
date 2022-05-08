@@ -61,7 +61,7 @@ public class EntryDocumentAppService : EntryDocumentService
         }
 
         _repository.Update(entryDocument);
-        entryDocument.Product.Stock += dto.Count + entryDocument.Count;
+        entryDocument.Product.Stock += dto.Count - entryDocument.Count;
         _unitOfWork.Save();
     }
 
@@ -80,6 +80,7 @@ public class EntryDocumentAppService : EntryDocumentService
         {
             throw new AvailableProductStockNotObservedException();
         }
+
         _repository.Delete(entryDocument);
         entryDocument.Product.Stock -= entryDocument.Count;
         _unitOfWork.Save();
