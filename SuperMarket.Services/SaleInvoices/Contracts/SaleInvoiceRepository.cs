@@ -7,4 +7,5 @@ public interface SaleInvoiceRepository : Repository
     public IList<GetProductDto> GetBestSellersProducts();
     public SalesInvoice Find(int id);
     public void Update(SalesInvoice salesInvoice);
+    public void Delete(SalesInvoice salesInvoice);
 }

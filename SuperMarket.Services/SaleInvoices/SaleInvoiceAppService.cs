@@ -52,7 +52,7 @@ public class SaleInvoiceAppService : SaleInvoiceService
         if (dto.Count - salesInvoice.Count >
             salesInvoice.Product.Stock)
         {
-            throw new MinimumAllowableStockNotObservedException();
+            throw new AvailableProductStockNotObservedException();
         }
 
         salesInvoice.Count = dto.Count;
@@ -63,6 +63,25 @@ public class SaleInvoiceAppService : SaleInvoiceService
 
         _repository.Update(salesInvoice);
         salesInvoice.Product.Stock -= dto.Count - salesInvoice.Count;
+        _unitOfWork.Save();
+    }
+
+    public void Delete(int id)
+    {
+        var salesInvoice = _repository.Find(id);
+        if (salesInvoice == null)
+        {
+            throw new SalesInvoiceNotFoundException();
+        }
+
+        if (salesInvoice.Product.Stock + salesInvoice.Count >
+            salesInvoice.Product.MaximumAllowableStock)
+        {
+            throw new MaximumAllowableStockNotObservedException();
+        }
+
+        _repository.Delete(salesInvoice);
+        salesInvoice.Product.Stock += salesInvoice.Count;
         _unitOfWork.Save();
     }
 }

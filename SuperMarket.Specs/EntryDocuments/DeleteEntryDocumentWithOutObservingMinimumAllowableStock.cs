@@ -33,6 +33,7 @@ public class
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
         _product = new ProductBuilder().WithMaximumAllowableStock(100)
             .Build();
+        _product.Category = category;
         _entryDocument = EntryDocumentFactory.GenerateEntryDocument();
         _entryDocument.Count = 20;
         _entryDocument.Product = _product;
@@ -75,7 +76,7 @@ public class
     public void AndThen()
     {
         _expected.Should()
-            .ThrowExactly<MinimumAllowableStockNotObservedException>();
+            .ThrowExactly<AvailableProductStockNotObservedException>();
     }
 
     [Fact]

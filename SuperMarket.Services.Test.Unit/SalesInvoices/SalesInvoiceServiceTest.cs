@@ -3,12 +3,12 @@ using System.Linq;
 using FluentAssertions;
 using Xunit;
 
-public class SaleInvoiceServiceTest
+public class SalesInvoiceServiceTest
 {
     private readonly EFDataContext _dbContext;
     private readonly SaleInvoiceService _sut;
 
-    public SaleInvoiceServiceTest()
+    public SalesInvoiceServiceTest()
     {
         _dbContext = new EFInMemoryDatabase()
             .CreateDataContext<EFDataContext>();
@@ -94,5 +94,67 @@ public class SaleInvoiceServiceTest
         expected.Price.Should().Be(dto.Price);
         expected.DateTime.Should().Be(dto.DateTime);
         expected.ProductId.Should().Be(dto.ProductId);
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    public void
+        Update_throw_SalesInvoiceNotFoundException_when_sales_invoice_with_given_id_is_not_exist(
+            int id)
+    {
+        var category = CategoryFactory.GenerateCategory("نوشیدنی");
+        _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
+        var product = new ProductBuilder().WithCategoryId(category.Id)
+            .Build();
+        _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
+        var dto =
+            SaleInvoiceFactory.GenerateUpdatealeInvoiceDto(product.Id);
+
+        var expected = () => _sut.Update(id, dto);
+
+        expected.Should()
+            .ThrowExactly<SalesInvoiceNotFoundException>();
+    }
+
+    [Fact]
+    public void Delete_deletes_sale_invoice_properly()
+    {
+        var category = CategoryFactory.GenerateCategory("نوشیدنی");
+        _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
+        var product = new ProductBuilder().WithCategoryId(category.Id)
+            .WithStock(10)
+            .Build();
+        var saleInvoice = SaleInvoiceFactory.GenerateSaleInvoice();
+        saleInvoice.Product = product;
+        _dbContext.Manipulate(_ => _.Set<SalesInvoice>().Add(saleInvoice));
+
+        _sut.Delete(saleInvoice.Id);
+
+        _dbContext.Set<Product>().Should().Contain(_ =>
+            _.Brand == product.Brand && _.Id == product.Id &&
+            _.Name == product.Name && _.Price == product.Price &&
+            _.Stock == product.Stock &&
+            _.CategoryId == product.CategoryId &&
+            _.ProductKey == product.ProductKey &&
+            _.MaximumAllowableStock == product.MaximumAllowableStock &&
+            _.MinimumAllowableStock == product.MinimumAllowableStock);
+        var expected = _dbContext.Set<SalesInvoice>()
+            .Should().NotContain(_ =>
+                _.Count == saleInvoice.Count &&
+                _.Price == saleInvoice.Price &&
+                _.BuyerName == saleInvoice.BuyerName &&
+                _.DateTime == saleInvoice.DateTime &&
+                _.ProductId == saleInvoice.ProductId);
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    public void
+        Delete_throw_SSalesInvoiceNotFoundException_sales_invoice_with_given_id_is_not_exist(
+            int id)
+    {
+        var expected = () => _sut.Delete(id);
+
+        expected.Should().ThrowExactly<SalesInvoiceNotFoundException>();
     }
 }

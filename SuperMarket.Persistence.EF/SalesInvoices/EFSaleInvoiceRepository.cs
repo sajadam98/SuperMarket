@@ -98,4 +98,9 @@ public class EFSaleInvoiceRepository : SaleInvoiceRepository
     {
         _dbContext.Set<SalesInvoice>().Update(salesInvoice);
     }
+
+    public void Delete(SalesInvoice salesInvoice)
+    {
+        _dbContext.Set<SalesInvoice>().Remove(salesInvoice);
+    }
 }

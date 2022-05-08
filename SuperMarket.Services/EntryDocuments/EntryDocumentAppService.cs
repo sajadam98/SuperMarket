@@ -78,7 +78,7 @@ public class EntryDocumentAppService : EntryDocumentService
             entryDocument.Product.MinimumAllowableStock;
         if (isMinimumAllowableStockNotObserved)
         {
-            throw new MinimumAllowableStockNotObservedException();
+            throw new AvailableProductStockNotObservedException();
         }
         _repository.Delete(entryDocument);
         entryDocument.Product.Stock -= entryDocument.Count;

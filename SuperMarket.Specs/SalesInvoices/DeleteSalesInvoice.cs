@@ -1,22 +1,21 @@
-using System.Linq;
 using FluentAssertions;
 using Xunit;
 using static BDDHelper;
 
-[Scenario("ویرایش فاکتور فروش")]
+[Scenario("حذف فاکتور فروش")]
 [Feature("",
     AsA = "فروشنده",
-    IWantTo = "فاکتور فروش را ویرایش کنم",
+    IWantTo = "فاکتور فروش را حذف کنم",
     InOrderTo = "فروش کالا را مدیریت کنم"
 )]
-public class UpdateSaleInvoice : EFDataContextDatabaseFixture
+public class DeleteSalesInvoice : EFDataContextDatabaseFixture
 {
     private readonly EFDataContext _dbContext;
     private Product _product;
     private SalesInvoice _salesInvoice;
     private UpdateSaleInvoiceDto _dto;
 
-    public UpdateSaleInvoice(ConfigurationFixture configuration) : base(
+    public DeleteSalesInvoice(ConfigurationFixture configuration) : base(
         configuration)
     {
         _dbContext = CreateDataContext();
@@ -27,7 +26,8 @@ public class UpdateSaleInvoice : EFDataContextDatabaseFixture
     public void Given()
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
-        _product = new ProductBuilder().Build();
+        _product = new ProductBuilder().WithMaximumAllowableStock(20)
+            .Build();
         _product.Category = category;
         _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
     }
@@ -44,10 +44,9 @@ public class UpdateSaleInvoice : EFDataContextDatabaseFixture
     }
 
     [When(
-        "فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '2' با قیمت '25000' را به فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '8' با قیمت '24000' ویرایش می کنم")]
+        "فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '2' با قیمت '25000' را حذف می کنم")]
     public void When()
     {
-        _dto = SaleInvoiceFactory.GenerateUpdatealeInvoiceDto(_product.Id);
         UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
         SaleInvoiceRepository repository =
             new EFSaleInvoiceRepository(_dbContext);
@@ -57,11 +56,11 @@ public class UpdateSaleInvoice : EFDataContextDatabaseFixture
             new SaleInvoiceAppService(repository, productRepository,
                 unitOfWork);
 
-        sut.Update(_salesInvoice.Id, _dto);
+        sut.Delete(_salesInvoice.Id);
     }
 
     [Then(
-        "باید کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و تعداد موجودی '4' در فهرست کالا ها وجود داشته باشد")]
+        "باید کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و تعداد موجودی '12' در فهرست کالا ها وجود داشته باشد")]
     public void Then()
     {
         _dbContext.Set<Product>().Should().Contain(_ =>
@@ -75,15 +74,16 @@ public class UpdateSaleInvoice : EFDataContextDatabaseFixture
     }
 
     [And(
-        "فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '8' با قیمت '24000'  در فهرست فاکتورها وجود داشته باشد")]
+        "نباید فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '2' با قیمت '25000' وجود داشته باشد")]
     public void AndThen()
     {
-        var expected = _dbContext.Set<SalesInvoice>().FirstOrDefault(_ => _.Id==_salesInvoice.Id);
-        expected!.Count.Should().Be(_dto.Count);
-        expected.BuyerName.Should().Be(_dto.BuyerName);
-        expected.Price.Should().Be(_dto.Price);
-        expected.DateTime.Should().Be(_dto.DateTime);
-        expected.ProductId.Should().Be(_dto.ProductId);
+        _dbContext.Set<SalesInvoice>()
+            .Should().NotContain(_ =>
+                _.Count == _salesInvoice.Count &&
+                _.Price == _salesInvoice.Price &&
+                _.BuyerName == _salesInvoice.BuyerName &&
+                _.DateTime == _salesInvoice.DateTime &&
+                _.ProductId == _salesInvoice.ProductId);
     }
 
     [Fact]

@@ -7,7 +7,7 @@ using static BDDHelper;
 [Scenario("ویرایش فاکتور فروش بدون رعایت موجودی محصول")]
 [Feature("",
     AsA = "فروشنده",
-    IWantTo = "فاکتور فروش تعریف کنم",
+    IWantTo = "فاکتور فروش را ویرایش کنم",
     InOrderTo = "فروش کالا را مدیریت کنم"
 )]
 public class
@@ -97,7 +97,7 @@ public class
     public void AndThen2()
     {
         _expected.Should()
-            .ThrowExactly<MinimumAllowableStockNotObservedException>();
+            .ThrowExactly<AvailableProductStockNotObservedException>();
     }
 
     [Fact]
