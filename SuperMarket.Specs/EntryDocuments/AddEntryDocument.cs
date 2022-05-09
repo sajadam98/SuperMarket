@@ -1,5 +1,4 @@
 using FluentAssertions;
-using SuperMarket._Test.Tools.EntryDocuments;
 using Xunit;
 using static BDDHelper;
 
@@ -38,9 +37,8 @@ public class AddEntryDocument : EFDataContextDatabaseFixture
         "سندی با تاریخ صدور '16/04/1900' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '50' با قیمت فی '18000' و تاریخ تولید '16/04/1900' و تاریخ انقضا '16/10/1900' را تعریف می کنم")]
     public void When()
     {
-        _dto = EntryDocumentFactory.GenerateAddEntryDocumentDto(
-            _product.Id);
-        _dto.Count = 50;
+        _dto = new AddEntryDocumentDtoBuilder().WithCount(50)
+            .WithProductId(_product.Id).Build();
         UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
         EntryDocumentRepository repository =
             new EFEntryDocumentRepository(_dbContext);

@@ -28,11 +28,10 @@ public class GetAvailableProducts : EFDataContextDatabaseFixture
     public void Given()
     {
         _category = CategoryFactory.GenerateCategory("نوشیدنی");
-        _product = new ProductBuilder().WithCategoryId(_category.Id)
+        _product = new ProductBuilder().WithCategory(_category)
             .WithStock(10).WithMaximumAllowableStock(10)
-            .WithMinimumAllowableStock(0)
-            .Build();
-        _product.Category = _category;
+            .WithMinimumAllowableStock(0).WithName("آب سیب")
+            .WithPrice(25000).WithProductKey("1234").Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
     }
 
@@ -43,8 +42,7 @@ public class GetAvailableProducts : EFDataContextDatabaseFixture
         var product = new ProductBuilder().WithCategoryId(_category.Id)
             .WithName("آب انبه").WithProductKey("4321").WithStock(0)
             .WithMaximumAllowableStock(10).WithMinimumAllowableStock(0)
-            .Build();
-        product.Category = _category;
+            .WithStock(0).Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
     }
 

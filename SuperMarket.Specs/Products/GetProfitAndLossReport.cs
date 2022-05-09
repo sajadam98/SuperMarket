@@ -1,5 +1,5 @@
-﻿using FluentAssertions;
-using SuperMarket._Test.Tools.EntryDocuments;
+﻿using System;
+using FluentAssertions;
 using Xunit;
 using static BDDHelper;
 
@@ -28,18 +28,21 @@ public class GetProfitAndLossReport : EFDataContextDatabaseFixture
     public void Given()
     {
         var category = CategoryFactory.GenerateCategory();
-        _product = new ProductBuilder().Build();
-        _product.Category = category;
+        _product = new ProductBuilder().WithStock(10).WithName("آب سیب")
+            .WithCategory(category).WithPrice(2500).WithProductKey("1234")
+            .WithMinimumAllowableStock(0).WithMaximumAllowableStock(10)
+            .Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
     }
 
     [And(
-        "تنها یک فاکتور با تاریخ صدور '19/04/1400' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '2' با قیمت '25000' درفهرست فاکتورها وجود دارد")]
+        "تنها یک فاکتور با تاریخ صدور '19/04/1400' و نام خرید کننده 'علی علینقیپور' و تعداد خرید '2' با قیمت '25000' و شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' درفهرست فاکتورها وجود دارد")]
     public void AndGiven()
     {
-        _saleInvoice = SaleInvoiceFactory.GenerateSaleInvoice();
-        _saleInvoice.Product = _product;
-        _saleInvoice.Count = 2;
+        _saleInvoice = new SalesInvoiceBuilder().WithProduct(_product)
+            .WithPrice(25000).WithBuyerName("علی علینقیپور")
+            .WithDateTime(new DateTime(1900, 04, 16))
+            .WithCount(2).Build();
         _dbContext.Manipulate(_ =>
             _.Set<SalesInvoice>().Add(_saleInvoice));
     }
@@ -49,7 +52,12 @@ public class GetProfitAndLossReport : EFDataContextDatabaseFixture
     public void AndGiven2()
     {
         _entryDocument =
-            EntryDocumentFactory.GenerateEntryDocument(_product.Id);
+            new EntryDocumentBuilder().WithCount(50)
+                .WithPurchasePrice(18000)
+                .WithExpirationDate(new DateTime(1900, 10, 16))
+                .WithManufactureDate(new DateTime(1900, 04, 16))
+                .WithDateTime(new DateTime(1900, 04, 16))
+                .WithProductId(_product.Id).Build();
         _dbContext.Manipulate(_ =>
             _.Set<EntryDocument>().Add(_entryDocument));
     }
@@ -66,7 +74,6 @@ public class GetProfitAndLossReport : EFDataContextDatabaseFixture
             new EFSaleInvoiceRepository(_dbContext);
         ProductService sut = new ProductAppService(repository,
             entryDocumentRepository, saleInvoiceRepository, unitOfWork);
-
 
         _expected = sut.GetProfitAndLossReport();
     }
@@ -86,7 +93,7 @@ public class GetProfitAndLossReport : EFDataContextDatabaseFixture
             _ => Given()
             , _ => AndGiven()
             , _ => AndGiven2()
-            ,_ => When()
-            ,_ => Then());
+            , _ => When()
+            , _ => Then());
     }
 }

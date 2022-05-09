@@ -1,6 +1,6 @@
+using System;
 using System.Linq;
 using FluentAssertions;
-using SuperMarket._Test.Tools.EntryDocuments;
 using Xunit;
 
 public class ProductServiceTest
@@ -28,7 +28,8 @@ public class ProductServiceTest
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
         _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
-        var dto = ProductFactory.GenerateAddProductDto(category.Id);
+        var dto = new AddProductDtoBuilder().WithCategoryId(category.Id)
+            .Build();
 
         _sut.Add(dto);
 
@@ -50,11 +51,10 @@ public class ProductServiceTest
         Add_throw_DuplicateProductKeyException_with_duplicated_product_key()
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
-        _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
-        var product = new ProductBuilder().WithCategoryId(category.Id)
+        var product = new ProductBuilder().WithCategory(category)
             .Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
-        var dto = ProductFactory.GenerateAddProductDto(category.Id);
+        var dto = new AddProductDtoBuilder().Build();
 
         var expected = () => _sut.Add(dto);
 
@@ -66,12 +66,11 @@ public class ProductServiceTest
         Update_updates_product_properly()
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
-        _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
-        var product = new ProductBuilder().WithCategoryId(category.Id)
-            .Build();
+        var product = new ProductBuilder().WithCategory(category).Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
         var dto =
-            ProductFactory.GenerateUpdateProductDto(category.Id, "4321");
+            new UpdateProductDtoBuilder().WithCategoryId(category.Id)
+                .Build();
 
         _sut.Update(product.Id, dto);
 
@@ -94,7 +93,7 @@ public class ProductServiceTest
         Update_throw_ProductNotFoundException_with_given_id(int id)
     {
         var dto =
-            ProductFactory.GenerateUpdateProductDto(id);
+            new UpdateProductDtoBuilder().Build();
 
         var expected = () => _sut.Update(id, dto);
 
@@ -106,17 +105,15 @@ public class ProductServiceTest
         Update_throw_DuplicateProductKeyException_when_product_key_is_exist()
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
-        _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
-        var product = new ProductBuilder().WithCategoryId(category.Id)
+        var product = new ProductBuilder().WithCategory(category)
             .Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
         var product2 = new ProductBuilder().WithCategoryId(category.Id)
-            .WithProductKey("4321").WithName("آب انبه")
-            .Build();
+            .WithProductKey("4321").Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product2));
         var dto =
-            ProductFactory.GenerateUpdateProductDto(category.Id,
-                product2.ProductKey);
+            new UpdateProductDtoBuilder().WithCategoryId(category.Id)
+                .WithProductKey(product2.ProductKey).Build();
 
         var expected = () => _sut.Update(product.Id, dto);
 
@@ -149,15 +146,12 @@ public class ProductServiceTest
         GetAvailableProducts_returns_products_that_available_in_super_market_properly()
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
-        var product = new ProductBuilder().WithCategoryId(category.Id)
-            .WithStock(10).WithMaximumAllowableStock(10)
-            .Build();
-        product.Category = category;
+        var product = new ProductBuilder().WithCategory(category).Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
         var product2 = new ProductBuilder().WithCategoryId(category.Id)
             .WithProductKey("4321").WithName("آب انبه").WithStock(0)
-            .WithMaximumAllowableStock(10)
-            .Build();
+            .WithMaximumAllowableStock(10).WithMinimumAllowableStock(0)
+            .WithPrice(2500).Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product2));
 
         var expected = _sut.GetAvailableProducts();
@@ -181,13 +175,12 @@ public class ProductServiceTest
             .Build();
         product.Category = category;
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
-        var saleInvoice = SaleInvoiceFactory.GenerateSaleInvoice();
-        saleInvoice.Product = product;
-        saleInvoice.Count = 2;
+        var saleInvoice = new SalesInvoiceBuilder().WithProduct(product)
+            .Build();
         _dbContext.Manipulate(_ =>
             _.Set<SalesInvoice>().Add(saleInvoice));
         var entryDocument =
-            EntryDocumentFactory.GenerateEntryDocument(product.Id);
+            new EntryDocumentBuilder().WithProductId(product.Id).Build();
         _dbContext.Manipulate(_ =>
             _.Set<EntryDocument>().Add(entryDocument));
 
@@ -211,24 +204,20 @@ public class ProductServiceTest
             .Build();
         product2.Category = category;
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product2));
-        var salesInvoice = SaleInvoiceFactory.GenerateSaleInvoice();
-        salesInvoice.Product = product;
-        salesInvoice.Count = 2;
+        var salesInvoice = new SalesInvoiceBuilder()
+            .WithProduct(product).Build();
         _dbContext.Manipulate(_ =>
             _.Set<SalesInvoice>().Add(salesInvoice));
-        var salesInvoice2 = SaleInvoiceFactory.GenerateSaleInvoice();
-        salesInvoice2.Product = product;
-        salesInvoice2.Count = 3;
+        var salesInvoice2 = new SalesInvoiceBuilder()
+            .WithProduct(product).WithCount(3).Build();
         _dbContext.Manipulate(_ =>
             _.Set<SalesInvoice>().Add(salesInvoice2));
-        var salesInvoice3 = SaleInvoiceFactory.GenerateSaleInvoice();
-        salesInvoice3.Product = product2;
-        salesInvoice3.Count = 1;
+        var salesInvoice3 = new SalesInvoiceBuilder()
+            .WithProduct(product2).WithCount(1).Build();
         _dbContext.Manipulate(_ =>
             _.Set<SalesInvoice>().Add(salesInvoice3));
-        var salesInvoice4 = SaleInvoiceFactory.GenerateSaleInvoice();
-        salesInvoice4.Product = product2;
-        salesInvoice4.Count = 2;
+        var salesInvoice4 = new SalesInvoiceBuilder()
+            .WithProduct(product2).Build();
         _dbContext.Manipulate(_ =>
             _.Set<SalesInvoice>().Add(salesInvoice4));
 

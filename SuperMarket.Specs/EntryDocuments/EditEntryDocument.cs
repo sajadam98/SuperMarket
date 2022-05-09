@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using FluentAssertions;
-using SuperMarket._Test.Tools.EntryDocuments;
 using Xunit;
 using static BDDHelper;
 
@@ -39,8 +38,8 @@ public class EditEntryDocument : EFDataContextDatabaseFixture
     public void AndGiven()
     {
         _entryDocument =
-            EntryDocumentFactory.GenerateEntryDocument(_product.Id);
-        _entryDocument.Count = 10;
+            new EntryDocumentBuilder().WithCount(10)
+                .WithProductId(_product.Id).Build();
         _dbContext.Manipulate(_ =>
             _.Set<EntryDocument>().Add(_entryDocument));
     }
@@ -49,8 +48,8 @@ public class EditEntryDocument : EFDataContextDatabaseFixture
         "سندی با تاریخ صدور '16/04/1400' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '50' با قیمت فی '18000' و تاریخ تولید '16/04/1400' و تاریخ انقضا '16/10/1400' را به سندی با تاریخ صدور '16/04/1400' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '30' با قیمت فی '20000' و تاریخ تولید '16/04/1400' و تاریخ انقضا '16/10/1400' ویرایش میکنم")]
     public void When()
     {
-        _dto = EntryDocumentFactory.GenerateUpdateEntryDocumentDto(
-            _product.Id);
+        _dto = new UpdateEntryDocumentDtoBuilder().WithCount(30)
+            .WithProductId(_product.Id).Build();
         UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
         EntryDocumentRepository repository =
             new EFEntryDocumentRepository(_dbContext);
@@ -87,7 +86,8 @@ public class EditEntryDocument : EFDataContextDatabaseFixture
         expected.DateTime.Should().Be(_entryDocument.DateTime);
         expected.ProductId.Should().Be(_entryDocument.ProductId);
         expected.ExpirationDate.Should().Be(_entryDocument.ExpirationDate);
-        expected.ManufactureDate.Should().Be(_entryDocument.ManufactureDate);
+        expected.ManufactureDate.Should()
+            .Be(_entryDocument.ManufactureDate);
         expected.PurchasePrice.Should().Be(_entryDocument.PurchasePrice);
     }
 

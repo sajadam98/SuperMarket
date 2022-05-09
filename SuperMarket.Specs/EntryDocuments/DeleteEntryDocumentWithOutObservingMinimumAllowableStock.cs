@@ -1,6 +1,5 @@
 using System;
 using FluentAssertions;
-using SuperMarket._Test.Tools.EntryDocuments;
 using Xunit;
 using static BDDHelper;
 
@@ -33,8 +32,8 @@ public class
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
         _product = new ProductBuilder().WithMaximumAllowableStock(100)
             .WithStock(10).WithMinimumAllowableStock(0)
+            .WithCategory(category)
             .Build();
-        _product.Category = category;
         _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
     }
 
@@ -43,8 +42,8 @@ public class
     public void AndGive()
     {
         _entryDocument =
-            EntryDocumentFactory.GenerateEntryDocument(_product.Id);
-        _entryDocument.Count = 20;
+            new EntryDocumentBuilder().WithCount(20)
+                .WithProductId(_product.Id).Build();
         _dbContext.Manipulate(_ =>
             _.Set<EntryDocument>().Add(_entryDocument));
     }

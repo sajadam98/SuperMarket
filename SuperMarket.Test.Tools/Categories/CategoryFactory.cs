@@ -1,10 +1,10 @@
 ﻿public class CategoryFactory
 {
-    public static AddCategoryDto GenerateAddCategoryDto()
+    public static AddCategoryDto GenerateAddCategoryDto(string name = "لبنیات")
     {
         return new AddCategoryDto
         {
-            Name = "لبنیات"
+            Name = name
         };
     }
     

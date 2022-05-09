@@ -24,15 +24,4 @@ public class SaleInvoiceFactory
             DateTime = new DateTime(1900, 04, 16)
         };
     }
-    
-    public static SalesInvoice GenerateSaleInvoice(int productId = 1)
-    {
-        return new SalesInvoice
-        {
-            Price = 25000,
-            ProductId = productId,
-            BuyerName = "علی علینقیپور",
-            DateTime = new DateTime(1900, 04, 16)
-        };
-    }
 }

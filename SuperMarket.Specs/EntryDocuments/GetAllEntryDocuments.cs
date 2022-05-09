@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using FluentAssertions;
-using SuperMarket._Test.Tools.EntryDocuments;
 using Xunit;
 using static BDDHelper;
 
@@ -29,8 +28,8 @@ public class GetAllEntryDocuments : EFDataContextDatabaseFixture
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
         var product = new ProductBuilder().Build();
         product.Category = category;
-        _entryDocument = EntryDocumentFactory.GenerateEntryDocument();
-        _entryDocument.Product = product;
+        _entryDocument = new EntryDocumentBuilder().WithCount(50)
+            .WithProduct(product).Build();
         _dbContext.Manipulate(_ =>
             _.Set<EntryDocument>().Add(_entryDocument));
     }

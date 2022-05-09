@@ -18,7 +18,7 @@ public class EFProductRepository : ProductRepository
         _dbContext.Set<Product>().Add(product);
     }
 
-    public bool IsProductKeyExistDuringAdd(string productKey)
+    public bool IsProductKeyExist(string productKey)
     {
         return _dbContext.Set<Product>()
             .Any(_ => _.ProductKey == productKey);

@@ -27,9 +27,10 @@ public class GetAllProducts : EFDataContextDatabaseFixture
     public void Given()
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
-        _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
-        _product = new ProductBuilder().WithCategoryId(category.Id)
-            .Build();
+        _product = new ProductBuilder().WithCategory(category)
+            .WithStock(10).WithMinimumAllowableStock(0)
+            .WithMaximumAllowableStock(10).WithName("آب سیب")
+            .WithPrice(25000).WithProductKey("1234").Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
     }
 

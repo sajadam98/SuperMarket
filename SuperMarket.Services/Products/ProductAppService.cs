@@ -19,7 +19,7 @@ public class ProductAppService : ProductService
     public void Add(AddProductDto dto)
     {
         var isProductKeyExist =
-            _repository.IsProductKeyExistDuringAdd(dto.ProductKey);
+            _repository.IsProductKeyExist(dto.ProductKey);
         if (isProductKeyExist)
         {
             throw new DuplicateProductKeyException();
@@ -42,17 +42,20 @@ public class ProductAppService : ProductService
 
     public void Update(int id, UpdateProductDto dto)
     {
-        var isProductKeyExist =
-            _repository.IsProductKeyExistDuringUpdate(id, dto.ProductKey);
-        if (isProductKeyExist)
-        {
-            throw new DuplicateProductKeyException();
-        }
-
         var product = _repository.Find(id);
         if (product == null)
         {
             throw new ProductNotFoundException();
+        }
+
+        if (dto.ProductKey != product.ProductKey)
+        {
+            var isProductKeyExist =
+                _repository.IsProductKeyExist(dto.ProductKey);
+            if (isProductKeyExist)
+            {
+                throw new DuplicateProductKeyException();
+            }
         }
 
         product.Name = dto.Name;

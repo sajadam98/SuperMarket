@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using FluentAssertions;
-using SuperMarket._Test.Tools.EntryDocuments;
 using Xunit;
 
 public class EntryDocumentServiceTest
@@ -32,7 +31,9 @@ public class EntryDocumentServiceTest
             .Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
         var dto =
-            EntryDocumentFactory.GenerateAddEntryDocumentDto(product.Id);
+            new AddEntryDocumentDtoBuilder().WithProductId(product.Id)
+                .WithCount(50)
+                .Build();
 
         _sut.Add(dto);
 
@@ -63,8 +64,8 @@ public class EntryDocumentServiceTest
             .Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
         var dto =
-            EntryDocumentFactory.GenerateAddEntryDocumentDto(product.Id);
-        dto.Count = 50;
+            new AddEntryDocumentDtoBuilder().WithCount(50)
+                .WithProductId(product.Id).Build();
 
         var expected = () => _sut.Add(dto);
 
@@ -79,8 +80,8 @@ public class EntryDocumentServiceTest
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
         var product = new ProductBuilder().Build();
         product.Category = category;
-        var entryDocument = EntryDocumentFactory.GenerateEntryDocument();
-        entryDocument.Product = product;
+        var entryDocument = new EntryDocumentBuilder().WithCount(50)
+            .WithProduct(product).Build();
         _dbContext.Manipulate(_ =>
             _.Set<EntryDocument>().Add(entryDocument));
 
@@ -101,16 +102,14 @@ public class EntryDocumentServiceTest
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
         var product = new ProductBuilder().WithMaximumAllowableStock(100)
-            .WithCategoryId(category.Id)
+            .WithCategory(category)
             .Build();
-        product.Category = category;
-        var entryDocument = EntryDocumentFactory.GenerateEntryDocument();
-        entryDocument.Count = 10;
-        entryDocument.Product = product;
+        var entryDocument = new EntryDocumentBuilder().WithCount(10)
+            .WithProduct(product).Build();
         _dbContext.Manipulate(_ =>
             _.Set<EntryDocument>().Add(entryDocument));
-        var dto = EntryDocumentFactory
-            .GenerateUpdateEntryDocumentDto(product.Id);
+        var dto = new UpdateEntryDocumentDtoBuilder().WithCount(30)
+            .WithProductId(product.Id).Build();
 
         _sut.Update(entryDocument.Id, dto);
 
@@ -144,14 +143,12 @@ public class EntryDocumentServiceTest
             .WithCategoryId(category.Id)
             .Build();
         product.Category = category;
-        var entryDocument = EntryDocumentFactory.GenerateEntryDocument();
-        entryDocument.Product = product;
-        entryDocument.Count = 10;
+        var entryDocument = new EntryDocumentBuilder().WithCount(10)
+            .WithProduct(product).Build();
         _dbContext.Manipulate(_ =>
             _.Set<EntryDocument>().Add(entryDocument));
-        var dto = EntryDocumentFactory
-            .GenerateUpdateEntryDocumentDto(product.Id);
-        dto.Count = 30;
+        var dto = new UpdateEntryDocumentDtoBuilder().WithCount(30)
+            .WithProductId(product.Id).Build();
 
         var expected = () => _sut.Update(entryDocument.Id, dto);
 

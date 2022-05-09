@@ -36,6 +36,8 @@ public class
     public void AndGiven()
     {
         _product = new ProductBuilder().WithCategoryId(_category.Id)
+            .WithMinimumAllowableStock(0).WithMaximumAllowableStock(10)
+            .WithName("آب سیب").WithPrice(25000).WithProductKey("1234")
             .WithStock(0).Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
     }
@@ -44,8 +46,10 @@ public class
         "کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و حداقل مجاز موجودی '0' و حداکثر موجودی مجاز '10' و تعداد موجودی '0' تعریف میکنم")]
     public void When()
     {
-        var dto = ProductFactory.GenerateAddProductDto(_category.Id);
-        dto.Stock = 0;
+        var dto = new AddProductDtoBuilder().WithStock(0)
+            .WithBrand("سن ایچ").WithPrice(25000).WithName("آب سیب")
+            .WithProductKey("1234").WithMinimumAllowableStock(0)
+            .WithMaximumAllowableStock(10).Build();
         var unitOfWork = new EFUnitOfWork(_dbContext);
         ProductRepository productRepository =
             new EFProductRepository(_dbContext);

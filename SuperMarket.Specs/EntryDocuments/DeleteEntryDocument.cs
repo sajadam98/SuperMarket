@@ -1,5 +1,4 @@
 using FluentAssertions;
-using SuperMarket._Test.Tools.EntryDocuments;
 using Xunit;
 using static BDDHelper;
 
@@ -30,9 +29,8 @@ public class DeleteEntryDocument : EFDataContextDatabaseFixture
             .WithStock(10).WithMinimumAllowableStock(0)
             .Build();
         _product.Category = category;
-        _entryDocument = EntryDocumentFactory.GenerateEntryDocument();
-        _entryDocument.Count = 10;
-        _entryDocument.Product = _product;
+        _entryDocument = new EntryDocumentBuilder().WithCount(10)
+            .WithProduct(_product).Build();
         _dbContext.Manipulate(_ =>
             _.Set<EntryDocument>().Add(_entryDocument));
     }

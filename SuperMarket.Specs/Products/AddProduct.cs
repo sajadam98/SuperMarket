@@ -35,10 +35,14 @@ public class AddProduct : EFDataContextDatabaseFixture
     {
     }
 
-    [When("کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و حداقل مجاز موجودی '0' و حداکثر موجودی مجاز '10' و تعداد موجودی '0' تعریف میکنم")]
+    [When(
+        "کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و حداقل مجاز موجودی '0' و حداکثر موجودی مجاز '10' و تعداد موجودی '0' تعریف میکنم")]
     public void When()
     {
-        _dto = ProductFactory.GenerateAddProductDto(_category.Id);
+        _dto = new AddProductDtoBuilder().WithStock(0).WithName("آب سیب")
+            .WithBrand("سن ایچ").WithPrice(25000).WithProductKey("1234")
+            .WithMinimumAllowableStock(0).WithMaximumAllowableStock(10)
+            .WithCategoryId(_category.Id).Build();
         var unitOfWork = new EFUnitOfWork(_dbContext);
         ProductRepository productRepository =
             new EFProductRepository(_dbContext);
@@ -62,8 +66,10 @@ public class AddProduct : EFDataContextDatabaseFixture
         expected.Stock.Should().Be(_dto.Stock);
         expected.CategoryId.Should().Be(_dto.CategoryId);
         expected.ProductKey.Should().Be(_dto.ProductKey);
-        expected.MaximumAllowableStock.Should().Be(_dto.MaximumAllowableStock);
-        expected.MinimumAllowableStock.Should().Be(_dto.MinimumAllowableStock);
+        expected.MaximumAllowableStock.Should()
+            .Be(_dto.MaximumAllowableStock);
+        expected.MinimumAllowableStock.Should()
+            .Be(_dto.MinimumAllowableStock);
         expected.Brand.Should().Be(_dto.Brand);
     }
 

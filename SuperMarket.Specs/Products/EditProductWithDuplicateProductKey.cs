@@ -29,9 +29,7 @@ public class
     public void Given()
     {
         _category = CategoryFactory.GenerateCategory("نوشیدنی");
-        _dbContext.Manipulate(_ => _.Set<Category>().Add(_category));
-        _product = new ProductBuilder().WithCategoryId(_category.Id)
-            .Build();
+        _product = new ProductBuilder().WithCategory(_category).Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
     }
 
@@ -40,8 +38,9 @@ public class
     public void AndGiven()
     {
         var product = new ProductBuilder().WithCategoryId(_category.Id)
-            .WithProductKey("4321").WithName("آب انبه")
-            .Build();
+            .WithProductKey("4321").WithName("آب انبه").WithStock(0)
+            .WithMinimumAllowableStock(0).WithMaximumAllowableStock(10)
+            .WithProductKey("4321").WithPrice(2500).Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
     }
 
@@ -50,7 +49,11 @@ public class
     public void When()
     {
         var dto =
-            ProductFactory.GenerateUpdateProductDto(_category.Id, "4321");
+            new UpdateProductDtoBuilder().WithStock(0)
+                .WithMinimumAllowableStock(0)
+                .WithMaximumAllowableStock(10).WithName("آب آلبالو")
+                .WithCategoryId(_category.Id).WithProductKey("4321")
+                .WithPrice(25000).Build();
         var unitOfWork = new EFUnitOfWork(_dbContext);
         ProductRepository productRepository =
             new EFProductRepository(_dbContext);

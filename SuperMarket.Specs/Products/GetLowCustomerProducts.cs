@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using Xunit;
@@ -25,42 +26,36 @@ public class GetLowCustomerProducts : EFDataContextDatabaseFixture
     }
 
     [Given(
-        "فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '2' با قیمت '25000' و مجموع قیمت '50000' در فهرست فاکتورها وجو دارد")]
+        "کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و حداقل تعداد موجودی '0' و حداکثر تعداد موجودی '10' و تعداد موجودی '10' در فهرست کالا ها وجود دارد")]
     public void Given()
     {
         _category = CategoryFactory.GenerateCategory("نوشیدنی");
-        _product = new ProductBuilder().Build();
-        _product.Category = _category;
+        _product = new ProductBuilder().WithStock(10).WithPrice(25000)
+            .WithName("آب سیب").WithProductKey("1234")
+            .WithCategory(_category).WithMinimumAllowableStock(0)
+            .WithMaximumAllowableStock(10).Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
-        var salesInvoice =
-            SaleInvoiceFactory.GenerateSaleInvoice(_product.Id);
-        salesInvoice.Count = 2;
-        _dbContext.Manipulate(
-            _ => _.Set<SalesInvoice>().Add(salesInvoice));
     }
 
     [And(
-        "فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'پنیر' و کدکالا '1345' و تعداد خرید '1' با قیمت '25000' و مجموع قیمت '50000' در فهرست فاکتورها وجود دارد")]
+        "کالایی با عنوان 'آب سیب' و کدکالا '1345' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و حداقل تعداد موجودی '0' و حداکثر تعداد موجودی '10' و تعداد موجودی '10' در فهرست کالا ها وجود دارد")]
     public void AndGiven()
     {
-        _product2 = new ProductBuilder().WithProductKey("1345").Build();
-        _product2.Category = _category;
+        _product2 = new ProductBuilder().WithStock(10).WithPrice(25000)
+            .WithName("آب سیب").WithProductKey("1345")
+            .WithCategory(_category).WithMinimumAllowableStock(0)
+            .WithMaximumAllowableStock(10).Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(_product2));
-        var salesInvoice =
-            SaleInvoiceFactory.GenerateSaleInvoice(_product2.Id);
-        salesInvoice.Count = 1;
-        _dbContext.Manipulate(_ =>
-            _.Set<SalesInvoice>().Add(salesInvoice));
     }
-    
+
     [And(
-        "فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '3' با قیمت '25000' و مجموع قیمت '50000' در فهرست فاکتورها وجو دارد")]
+        "فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '2' با قیمت '25000' و مجموع قیمت '50000' در فهرست فاکتورها وجو دارد")]
     public void AndGiven2()
     {
-        _category = CategoryFactory.GenerateCategory("نوشیدنی");
         var salesInvoice =
-            SaleInvoiceFactory.GenerateSaleInvoice(_product.Id);
-        salesInvoice.Count = 3;
+            new SalesInvoiceBuilder().WithCount(2).WithPrice(25000)
+                .WithProductId(_product.Id).WithBuyerName("علی علینقیپور")
+                .WithDateTime(new DateTime(1900, 04, 16)).Build();
         _dbContext.Manipulate(
             _ => _.Set<SalesInvoice>().Add(salesInvoice));
     }
@@ -69,9 +64,35 @@ public class GetLowCustomerProducts : EFDataContextDatabaseFixture
         "فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'پنیر' و کدکالا '1345' و تعداد خرید '1' با قیمت '25000' و مجموع قیمت '50000' در فهرست فاکتورها وجود دارد")]
     public void AndGiven3()
     {
+        var salesInvoice = new SalesInvoiceBuilder().WithCount(1)
+            .WithPrice(25000)
+            .WithProductId(_product2.Id).WithBuyerName("علی علینقیپور")
+            .WithDateTime(new DateTime(1900, 04, 16)).Build();
+        _dbContext.Manipulate(_ =>
+            _.Set<SalesInvoice>().Add(salesInvoice));
+    }
+
+    [And(
+        "فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '3' با قیمت '25000' و مجموع قیمت '50000' در فهرست فاکتورها وجو دارد")]
+    public void AndGiven4()
+    {
+        _category = CategoryFactory.GenerateCategory("نوشیدنی");
+        var salesInvoice = new SalesInvoiceBuilder().WithCount(3)
+            .WithPrice(25000).WithProductId(_product.Id)
+            .WithBuyerName("علی علینقیپور")
+            .WithDateTime(new DateTime(1900, 04, 16)).Build();
+        _dbContext.Manipulate(
+            _ => _.Set<SalesInvoice>().Add(salesInvoice));
+    }
+
+    [And(
+        "فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'پنیر' و کدکالا '1345' و تعداد خرید '1' با قیمت '25000' و مجموع قیمت '50000' در فهرست فاکتورها وجود دارد")]
+    public void AndGiven5()
+    {
         var salesInvoice =
-            SaleInvoiceFactory.GenerateSaleInvoice(_product2.Id);
-        salesInvoice.Count = 1;
+            new SalesInvoiceBuilder().WithCount(1).WithPrice(25000)
+                .WithProductId(_product2.Id).WithBuyerName("علی علینقیپور")
+                .WithDateTime(new DateTime(1900, 04, 16)).Build();
         _dbContext.Manipulate(_ =>
             _.Set<SalesInvoice>().Add(salesInvoice));
     }
@@ -117,6 +138,8 @@ public class GetLowCustomerProducts : EFDataContextDatabaseFixture
             , _ => AndGiven()
             , _ => AndGiven2()
             , _ => AndGiven3()
+            , _ => AndGiven4()
+            , _ => AndGiven5()
             , _ => When()
             , _ => Then());
     }
