@@ -28,12 +28,14 @@ public class
     }
 
     [Given(
-        "کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و تعداد موجودی '10' در فهرست کالا ها وجود دارد")]
+        "کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و حداقل تعداد موجودی '0' و  حداکثر تعداد موجودی '10' و تعداد موجودی '10' در فهرست کالا ها وجود دارد")]
     public void Given()
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
-        _product = new ProductBuilder().Build();
-        _product.Category = category;
+        _product = new ProductBuilder().WithStock(10)
+            .WithMinimumAllowableStock(0).WithMaximumAllowableStock(10)
+            .WithName("آب سیب").WithProductKey("1234").WithPrice(25000)
+            .WithCategory(category).Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
     }
 
@@ -41,9 +43,10 @@ public class
         "فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '2' با قیمت '25000' در فهرست فاکتورها وجود دارد")]
     public void AndGiven()
     {
-        _salesInvoice = SaleInvoiceFactory.GenerateSaleInvoice();
-        _salesInvoice.Product = _product;
-        _salesInvoice.Count = 2;
+        _salesInvoice = new SalesInvoiceBuilder().WithPrice(25000)
+            .WithCount(2).WithProduct(_product)
+            .WithBuyerName("علی علینقیپور")
+            .WithDateTime(new DateTime(1900, 04, 16)).Build();
         _dbContext.Manipulate(
             _ => _.Set<SalesInvoice>().Add(_salesInvoice));
     }
@@ -52,8 +55,10 @@ public class
         "فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '2' با قیمت '25000' را به فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '13' با قیمت '24000' ویرایش می کنم")]
     public void When()
     {
-        _dto = SaleInvoiceFactory.GenerateUpdatealeInvoiceDto(_product.Id);
-        _dto.Count = 13;
+        _dto = new UpdateSalesInvoiceDtoBuilder().WithCount(13)
+            .WithPrice(24000).WithBuyerName("علی علینقیپور")
+            .WithDateTime(new DateTime(1900, 04, 16))
+            .WithProductId(_product.Id).Build();
         UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
         SaleInvoiceRepository repository =
             new EFSaleInvoiceRepository(_dbContext);

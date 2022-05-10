@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using FluentAssertions;
+using Xunit;
 using static BDDHelper;
 
 [Scenario("مشاهده فهرست سندها")]
@@ -13,6 +15,7 @@ public class GetAllSaleInvoices : EFDataContextDatabaseFixture
     private readonly EFDataContext _dbContext;
     private IList<GetSaleInvoiceDto> _expected;
     private SalesInvoice _salesInvoice;
+    private Product _product;
 
     public GetAllSaleInvoices(ConfigurationFixture configuration) : base(
         configuration)
@@ -20,14 +23,26 @@ public class GetAllSaleInvoices : EFDataContextDatabaseFixture
         _dbContext = CreateDataContext();
     }
 
-    [Given(
-        "تنها یک فاکتور با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '2' با قیمت '25000' و مجموع قیمت '50000' در فهرست فاکتورها وجود دارد")]
+    [And(
+        "کالایی با عنوان 'آب سیب' و کدکالا '1234' و جز دسته بندی 'نوشیدنی' , حداقل تعداد موجودی '0' و حداکثر تعداد موجودی '10' و تعداد موجودی '10' و با قیمت '25000' در فهرست کالاها وجود دارد")]
     public void Given()
     {
-        var product = new ProductBuilder().Build();
-        product.Category = CategoryFactory.GenerateCategory("نوشیدنی");
-        _salesInvoice = SaleInvoiceFactory.GenerateSaleInvoice(1);
-        _salesInvoice.Product = product;
+        var category = CategoryFactory.GenerateCategory("نوشیدنی");
+        _product = new ProductBuilder().WithCategory(category)
+            .WithStock(10).WithMinimumAllowableStock(0)
+            .WithMaximumAllowableStock(10).WithName("آب سیب")
+            .WithProductKey("1234").WithPrice(25000).Build();
+        _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
+    }
+
+    [Given(
+        "تنها یک فاکتور با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '2' با قیمت '25000' و مجموع قیمت '50000' در فهرست فاکتورها وجود دارد")]
+    public void AndGiven()
+    {
+        _salesInvoice = new SalesInvoiceBuilder().WithCount(2)
+            .WithPrice(25000).WithProduct(_product)
+            .WithBuyerName("علی علینقیپور")
+            .WithDateTime(new DateTime(1900, 04, 16)).Build();
         _dbContext.Manipulate(
             _ => _.Set<SalesInvoice>().Add(_salesInvoice));
     }
@@ -60,5 +75,15 @@ public class GetAllSaleInvoices : EFDataContextDatabaseFixture
             _.BuyerName == _salesInvoice.BuyerName &&
             _.DateTime == _salesInvoice.DateTime && _.TotalPrice ==
             _salesInvoice.Count * _salesInvoice.Price);
+    }
+
+    [Fact]
+    public void Run()
+    {
+        Runner.RunScenario(
+            _ => Given()
+            , _ => AndGiven()
+            , _ => When()
+            , _  => Then());
     }
 }

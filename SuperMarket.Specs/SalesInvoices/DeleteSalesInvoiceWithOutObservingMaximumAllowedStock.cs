@@ -26,11 +26,15 @@ public class
     }
 
     [Given(
-        "کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی'و حداقل تعداد موجودی '0' و حداکثر تعداد موجودی '10' و تعداد موجودی '10' در فهرست کالا ها وجود دارد")]
+        "کالایی با عنوان 'آب سیب' و کدکالا '1234' و قیمت '25000' و برند 'سن ایچ' جز دسته بندی 'نوشیدنی' و حداقل تعداد موجودی '0' و حداکثر تعداد موجودی '10' و تعداد موجودی '10' در فهرست کالا ها وجود دارد")]
     public void Given()
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
-        _product = new ProductBuilder().Build();
+        _product = new ProductBuilder().WithStock(10)
+            .WithMinimumAllowableStock(0).WithMaximumAllowableStock(10)
+            .WithName("آب سیب").WithProductKey("1234")
+            .WithCategory(category)
+            .WithPrice(25000).Build();
         _product.Category = category;
         _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
     }
@@ -39,7 +43,10 @@ public class
         "فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '2' با قیمت '25000' در فهرست فاکتورها وجود دارد")]
     public void AndGiven()
     {
-        _salesInvoice = SaleInvoiceFactory.GenerateSaleInvoice();
+        _salesInvoice = new SalesInvoiceBuilder().WithProduct(_product)
+            .WithCount(2).WithPrice(25000).WithBuyerName("علی علینقیپور")
+            .WithDateTime(new DateTime(1900, 04, 16))
+            .Build();
         _salesInvoice.Product = _product;
         _salesInvoice.Count = 2;
         _dbContext.Manipulate(
@@ -80,7 +87,8 @@ public class
         "نباید فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '2' با قیمت '25000' وجود داشته باشد")]
     public void AndThen()
     {
-        _expected.Should().ThrowExactly<MaximumAllowableStockNotObservedException>();
+        _expected.Should()
+            .ThrowExactly<MaximumAllowableStockNotObservedException>();
     }
 
     [Fact]

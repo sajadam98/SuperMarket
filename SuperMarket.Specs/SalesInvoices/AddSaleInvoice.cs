@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using FluentAssertions;
 using Xunit;
@@ -37,7 +38,10 @@ public class AddSaleInvoice : EFDataContextDatabaseFixture
         "فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '5' با قیمت '25000' را تعریف می کنم")]
     public void When()
     {
-        _dto = SaleInvoiceFactory.GenerateAddSaleInvoiceDto(_product.Id);
+        _dto = new AddSalesInvoiceDtoBuilder().WithPrice(25000)
+            .WithCount(5).WithProductId(_product.Id)
+            .WithBuyerName("علی علینقیپور")
+            .WithDateTime(new DateTime(1900, 04, 16)).Build();
         var unitOfWork = new EFUnitOfWork(_dbContext);
         SaleInvoiceRepository saleInvoiceRepository =
             new EFSaleInvoiceRepository(_dbContext);

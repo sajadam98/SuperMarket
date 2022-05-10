@@ -26,13 +26,12 @@ public class SalesInvoiceServiceTest
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
         _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
-        var product = new ProductBuilder().WithCategoryId(category.Id)
-            .WithStock(10).WithMaximumAllowableStock(10)
-            .WithMinimumAllowableStock(0)
+        var product = new ProductBuilder().WithStock(10)
+            .WithCategoryId(category.Id)
             .Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
-        var dto = SaleInvoiceFactory.GenerateAddSaleInvoiceDto(product.Id);
-        dto.Count = 8;
+        var dto = new AddSalesInvoiceDtoBuilder().WithProductId(product.Id)
+            .WithCount(8).Build();
 
         _sut.Add(dto);
 
@@ -49,17 +48,15 @@ public class SalesInvoiceServiceTest
 
     [Fact]
     public void
-        Add_throw_MaximumAllowedProductStockNotObserved_when_maximum_allowable_product_inventory_is_not_observed()
+        Add_throw_AvailableProductStockNotObservedException_when_maximum_allowable_product_inventory_is_not_observed()
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
-        _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
         var product = new ProductBuilder().WithStock(1)
-            .WithCategoryId(category.Id)
-            .Build();
+            .WithCategory(category).Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
-        var dto = SaleInvoiceFactory.GenerateAddSaleInvoiceDto(product.Id);
-        dto.Count = 8;
-        
+        var dto = new AddSalesInvoiceDtoBuilder().WithCount(8)
+            .WithProductId(product.Id).Build();
+
         var expected = () => _sut.Add(dto);
 
         expected.Should()
@@ -72,14 +69,13 @@ public class SalesInvoiceServiceTest
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
         _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
         var product = new ProductBuilder().WithCategoryId(category.Id)
-            .WithStock(10)
             .Build();
-        var saleInvoice = SaleInvoiceFactory.GenerateSaleInvoice();
-        saleInvoice.Product = product;
-        saleInvoice.Count = 2;
+        var saleInvoice =
+            new SalesInvoiceBuilder().WithProduct(product).Build();
         _dbContext.Manipulate(_ => _.Set<SalesInvoice>().Add(saleInvoice));
-        var dto =
-            SaleInvoiceFactory.GenerateUpdatealeInvoiceDto(product.Id);
+        var dto = new UpdateSalesInvoiceDtoBuilder()
+            .WithProductId(product.Id)
+            .Build();
 
         _sut.Update(saleInvoice.Id, dto);
 
@@ -109,13 +105,12 @@ public class SalesInvoiceServiceTest
         var product = new ProductBuilder().WithCategoryId(category.Id)
             .WithStock(10)
             .Build();
-        var saleInvoice = SaleInvoiceFactory.GenerateSaleInvoice();
-        saleInvoice.Product = product;
-        saleInvoice.Count = 2;
+        var saleInvoice =
+            new SalesInvoiceBuilder().WithProduct(product).Build();
         _dbContext.Manipulate(_ => _.Set<SalesInvoice>().Add(saleInvoice));
         var dto =
-            SaleInvoiceFactory.GenerateUpdatealeInvoiceDto(product.Id);
-        dto.Count = 13;
+            new UpdateSalesInvoiceDtoBuilder().WithCount(13)
+                .WithProductId(product.Id).Build();
 
         var expected = () => _sut.Update(saleInvoice.Id, dto);
 
@@ -143,7 +138,8 @@ public class SalesInvoiceServiceTest
             .Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
         var dto =
-            SaleInvoiceFactory.GenerateUpdatealeInvoiceDto(product.Id);
+            new UpdateSalesInvoiceDtoBuilder().WithProductId(product.Id)
+                .Build();
 
         var expected = () => _sut.Update(id, dto);
 
@@ -167,9 +163,8 @@ public class SalesInvoiceServiceTest
         var product = new ProductBuilder().WithCategoryId(category.Id)
             .WithMaximumAllowableStock(20)
             .Build();
-        var saleInvoice = SaleInvoiceFactory.GenerateSaleInvoice();
-        saleInvoice.Product = product;
-        saleInvoice.Count = 2;
+        var saleInvoice =
+            new SalesInvoiceBuilder().WithProduct(product).Build();
         _dbContext.Manipulate(_ => _.Set<SalesInvoice>().Add(saleInvoice));
 
         _sut.Delete(saleInvoice.Id);
@@ -200,10 +195,9 @@ public class SalesInvoiceServiceTest
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
         _dbContext.Manipulate(_ => _.Set<Category>().Add(category));
         var product = new ProductBuilder().WithCategoryId(category.Id)
-            .WithStock(10)
             .Build();
-        var saleInvoice = SaleInvoiceFactory.GenerateSaleInvoice();
-        saleInvoice.Product = product;
+        var saleInvoice =
+            new SalesInvoiceBuilder().WithProduct(product).Build();
         _dbContext.Manipulate(_ => _.Set<SalesInvoice>().Add(saleInvoice));
 
         var expected = () => _sut.Delete(id);
@@ -228,8 +222,8 @@ public class SalesInvoiceServiceTest
         var product = new ProductBuilder().WithCategoryId(category.Id)
             .WithStock(10)
             .Build();
-        var saleInvoice = SaleInvoiceFactory.GenerateSaleInvoice();
-        saleInvoice.Product = product;
+        var saleInvoice =
+            new SalesInvoiceBuilder().WithProduct(product).Build();
         _dbContext.Manipulate(_ => _.Set<SalesInvoice>().Add(saleInvoice));
 
         var expected = () => _sut.Delete(saleInvoice.Id);
@@ -244,5 +238,28 @@ public class SalesInvoiceServiceTest
             _.MinimumAllowableStock == product.MinimumAllowableStock);
         expected.Should()
             .ThrowExactly<MaximumAllowableStockNotObservedException>();
+    }
+
+    [Fact]
+    public void GetAll_returns_sales_invoices_properly()
+    {
+        var category = CategoryFactory.GenerateCategory("نوشیدنی");
+        var product = new ProductBuilder().WithCategory(category).Build();
+        _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
+        var salesInvoice =
+            new SalesInvoiceBuilder().WithProduct(product).Build();
+        _dbContext.Manipulate(
+            _ => _.Set<SalesInvoice>().Add(salesInvoice));
+
+        var expected = _sut.GetAll();
+
+        expected.Should().HaveCount(1);
+        expected.Should().Contain(_ =>
+            _.Count == salesInvoice.Count &&
+            _.Product.Id == salesInvoice.ProductId &&
+            _.Price == salesInvoice.Price &&
+            _.BuyerName == salesInvoice.BuyerName &&
+            _.DateTime == salesInvoice.DateTime && _.TotalPrice ==
+            salesInvoice.Count * salesInvoice.Price);
     }
 }

@@ -71,14 +71,6 @@ public class EFProductRepository : ProductRepository
             }).ToList();
     }
 
-    public bool IsNumberOfSaleAllowed(int productId,
-        int saleInvoiceCount)
-    {
-        var product = _dbContext.Set<Product>()
-            .Single(_ => _.Id == productId);
-        return product.Stock - saleInvoiceCount >= 0;
-    }
-
     public bool IsMaximumAllowableStockNotObserved(int productId,
         int count)
     {

@@ -146,12 +146,11 @@ public class ProductServiceTest
         GetAvailableProducts_returns_products_that_available_in_super_market_properly()
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
-        var product = new ProductBuilder().WithCategory(category).Build();
+        var product = new ProductBuilder().WithStock(10)
+            .WithCategory(category).Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product));
         var product2 = new ProductBuilder().WithCategoryId(category.Id)
-            .WithProductKey("4321").WithName("آب انبه").WithStock(0)
-            .WithMaximumAllowableStock(10).WithMinimumAllowableStock(0)
-            .WithPrice(2500).Build();
+            .WithProductKey("4321").WithName("آب انبه").Build();
         _dbContext.Manipulate(_ => _.Set<Product>().Add(product2));
 
         var expected = _sut.GetAvailableProducts();

@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using FluentAssertions;
 using Xunit;
@@ -27,10 +28,10 @@ public class UpdateSaleInvoice : EFDataContextDatabaseFixture
     public void Given()
     {
         var category = CategoryFactory.GenerateCategory("نوشیدنی");
-        _product = new ProductBuilder().WithStock(10)
+        _product = new ProductBuilder().WithStock(10).WithName("آب سیب")
+            .WithProductKey("1234").WithPrice(25000).WithCategory(category)
             .WithMaximumAllowableStock(10).WithMinimumAllowableStock(0)
             .Build();
-        _product.Category = category;
         _dbContext.Manipulate(_ => _.Set<Product>().Add(_product));
     }
 
@@ -38,9 +39,10 @@ public class UpdateSaleInvoice : EFDataContextDatabaseFixture
         "فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '2' با قیمت '25000' در فهرست فاکتورها وجود دارد")]
     public void AndGiven()
     {
-        _salesInvoice = SaleInvoiceFactory.GenerateSaleInvoice();
-        _salesInvoice.Product = _product;
-        _salesInvoice.Count = 2;
+        _salesInvoice = new SalesInvoiceBuilder().WithProduct(_product)
+            .WithCount(2).WithPrice(25000).WithBuyerName("علی علینقیپور")
+            .WithDateTime(new DateTime(1900, 04, 16))
+            .Build();
         _dbContext.Manipulate(
             _ => _.Set<SalesInvoice>().Add(_salesInvoice));
     }
@@ -49,7 +51,11 @@ public class UpdateSaleInvoice : EFDataContextDatabaseFixture
         "فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '2' با قیمت '25000' را به فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '8' با قیمت '24000' ویرایش می کنم")]
     public void When()
     {
-        _dto = SaleInvoiceFactory.GenerateUpdatealeInvoiceDto(_product.Id);
+        _dto = new UpdateSalesInvoiceDtoBuilder().WithPrice(24000)
+            .WithCount(8).WithBuyerName("علی علینقیپور")
+            .WithDateTime(new DateTime(1900, 04, 16))
+            .WithProductId(_product.Id)
+            .Build();
         UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
         SaleInvoiceRepository repository =
             new EFSaleInvoiceRepository(_dbContext);

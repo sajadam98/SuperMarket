@@ -15,9 +15,14 @@ public class SaleInvoiceAppService : SaleInvoiceService
 
     public void Add(AddSaleInvoiceDto dto)
     {
-        var isNumberOfSaleAllowed =
-            _productRepository.IsNumberOfSaleAllowed(dto.ProductId,
-                dto.Count);
+        var product =
+            _productRepository.Find(dto.ProductId);
+        if (product == null)
+        {
+            throw new ProductNotFoundException();
+        }
+
+        var isNumberOfSaleAllowed = product.Stock - dto.Count >= 0;
         if (!isNumberOfSaleAllowed)
         {
             throw new AvailableProductStockNotObservedException();
