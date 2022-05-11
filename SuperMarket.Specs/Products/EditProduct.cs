@@ -12,6 +12,7 @@ using static BDDHelper;
 public class EditProduct : EFDataContextDatabaseFixture
 {
     private readonly EFDataContext _dbContext;
+    private readonly ProductAppService _sut;
     private Product _product;
     private Category _category;
     private UpdateProductDto _dto;
@@ -20,6 +21,15 @@ public class EditProduct : EFDataContextDatabaseFixture
         configuration)
     {
         _dbContext = CreateDataContext();
+        var unitOfWork = new EFUnitOfWork(_dbContext);
+        ProductRepository productRepository =
+            new EFProductRepository(_dbContext);
+        EntryDocumentRepository entryDocumentRepository =
+            new EFEntryDocumentRepository(_dbContext);
+        SaleInvoiceRepository saleInvoiceRepository =
+            new EFSaleInvoiceRepository(_dbContext);
+        _sut = new ProductAppService(productRepository,
+            entryDocumentRepository, saleInvoiceRepository, unitOfWork);
     }
 
     [Given(
@@ -42,17 +52,8 @@ public class EditProduct : EFDataContextDatabaseFixture
             .WithMinimumAllowableStock(0).WithMaximumAllowableStock(10)
             .WithBrand("سن ایچ").WithName("آب آلبالو").WithPrice(25000)
             .WithCategoryId(_category.Id).WithProductKey("4321").Build();
-        var unitOfWork = new EFUnitOfWork(_dbContext);
-        ProductRepository productRepository =
-            new EFProductRepository(_dbContext);
-        EntryDocumentRepository entryDocumentRepository =
-            new EFEntryDocumentRepository(_dbContext);
-        SaleInvoiceRepository saleInvoiceRepository =
-            new EFSaleInvoiceRepository(_dbContext);
-        ProductService sut = new ProductAppService(productRepository,
-            entryDocumentRepository, saleInvoiceRepository, unitOfWork);
-
-        sut.Update(_product.Id, _dto);
+        
+        _sut.Update(_product.Id, _dto);
     }
 
     [Then(

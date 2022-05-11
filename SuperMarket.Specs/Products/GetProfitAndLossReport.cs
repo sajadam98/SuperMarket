@@ -12,6 +12,7 @@ using static BDDHelper;
 public class GetProfitAndLossReport : EFDataContextDatabaseFixture
 {
     private readonly EFDataContext _dbContext;
+    private readonly ProductAppService _sut;
     private Product _product;
     private int _expected;
     private EntryDocument _entryDocument;
@@ -21,6 +22,15 @@ public class GetProfitAndLossReport : EFDataContextDatabaseFixture
         base(configuration)
     {
         _dbContext = CreateDataContext();
+        var unitOfWork = new EFUnitOfWork(_dbContext);
+        ProductRepository productRepository =
+            new EFProductRepository(_dbContext);
+        EntryDocumentRepository entryDocumentRepository =
+            new EFEntryDocumentRepository(_dbContext);
+        SaleInvoiceRepository saleInvoiceRepository =
+            new EFSaleInvoiceRepository(_dbContext);
+        _sut = new ProductAppService(productRepository,
+            entryDocumentRepository, saleInvoiceRepository, unitOfWork);
     }
 
     [Given(
@@ -66,16 +76,7 @@ public class GetProfitAndLossReport : EFDataContextDatabaseFixture
         "درخواست مشاهده گزارش سود و زیاد را میدهم.")]
     public void When()
     {
-        UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
-        ProductRepository repository = new EFProductRepository(_dbContext);
-        EntryDocumentRepository entryDocumentRepository =
-            new EFEntryDocumentRepository(_dbContext);
-        SaleInvoiceRepository saleInvoiceRepository =
-            new EFSaleInvoiceRepository(_dbContext);
-        ProductService sut = new ProductAppService(repository,
-            entryDocumentRepository, saleInvoiceRepository, unitOfWork);
-
-        _expected = sut.GetProfitAndLossReport();
+        _expected = _sut.GetProfitAndLossReport();
     }
 
     [Then("باید پیغامی با عنوان '14000+' مشاهده کنم")]

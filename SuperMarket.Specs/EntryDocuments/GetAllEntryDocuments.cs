@@ -12,6 +12,7 @@ using static BDDHelper;
 public class GetAllEntryDocuments : EFDataContextDatabaseFixture
 {
     private readonly EFDataContext _dbContext;
+    private readonly EntryDocumentAppService _sut;
     private IList<GetEntryDocumentDto> _expected;
     private EntryDocument _entryDocument;
 
@@ -19,6 +20,14 @@ public class GetAllEntryDocuments : EFDataContextDatabaseFixture
         configuration)
     {
         _dbContext = CreateDataContext();
+        UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
+        EntryDocumentRepository repository =
+            new EFEntryDocumentRepository(_dbContext);
+        ProductRepository productRepository =
+            new EFProductRepository(_dbContext);
+        _sut =
+            new EntryDocumentAppService(repository, productRepository,
+                unitOfWork);
     }
 
     [Given(
@@ -37,16 +46,7 @@ public class GetAllEntryDocuments : EFDataContextDatabaseFixture
     [When("درخواست مشاهده فهرست سندها را میدهم")]
     public void When()
     {
-        UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
-        EntryDocumentRepository repository =
-            new EFEntryDocumentRepository(_dbContext);
-        ProductRepository productRepository =
-            new EFProductRepository(_dbContext);
-        EntryDocumentService sut =
-            new EntryDocumentAppService(repository, productRepository,
-                unitOfWork);
-
-        _expected = sut.GetAll();
+        _expected = _sut.GetAll();
     }
 
     [Then(

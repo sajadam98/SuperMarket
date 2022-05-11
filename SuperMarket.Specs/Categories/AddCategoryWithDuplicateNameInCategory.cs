@@ -17,12 +17,21 @@ public class
     private AddCategoryDto _dto;
     private Category _category;
     private Action _expected;
+    private readonly CategoryAppService _sut;
 
     public AddCategoryWithDuplicateNameInCategory(
         ConfigurationFixture configuration) : base(
         configuration)
     {
         _dbContext = CreateDataContext();
+        var unitOfWork = new EFUnitOfWork(_dbContext);
+        CategoryRepository categoryRepository =
+            new EFCategoryRepository(_dbContext);
+        ProductRepository productRepository =
+            new EFProductRepository(_dbContext);
+        _sut = new CategoryAppService(categoryRepository,
+            productRepository,
+            unitOfWork);
     }
 
     [Given(
@@ -37,16 +46,8 @@ public class
     public void When()
     {
         _dto = CategoryFactory.GenerateAddCategoryDto();
-        var unitOfWork = new EFUnitOfWork(_dbContext);
-        CategoryRepository categoryRepository =
-            new EFCategoryRepository(_dbContext);
-        ProductRepository productRepository =
-            new EFProductRepository(_dbContext);
-        CategoryService sut = new CategoryAppService(categoryRepository,
-            productRepository,
-            unitOfWork);
 
-        _expected = () => sut.Add(_dto);
+        _expected = () => _sut.Add(_dto);
     }
 
     [Then("باید تنها یک دسته بندی با عنوان 'لبنیات' وجود داشته باشد")]

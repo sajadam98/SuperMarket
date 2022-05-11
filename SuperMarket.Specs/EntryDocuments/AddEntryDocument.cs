@@ -11,6 +11,7 @@ using static BDDHelper;
 public class AddEntryDocument : EFDataContextDatabaseFixture
 {
     private readonly EFDataContext _dbContext;
+    private readonly EntryDocumentAppService _sut;
     private Product _product;
     private AddEntryDocumentDto _dto;
 
@@ -18,6 +19,14 @@ public class AddEntryDocument : EFDataContextDatabaseFixture
         configuration)
     {
         _dbContext = CreateDataContext();
+        UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
+        EntryDocumentRepository repository =
+            new EFEntryDocumentRepository(_dbContext);
+        ProductRepository productRepository =
+            new EFProductRepository(_dbContext);
+        _sut =
+            new EntryDocumentAppService(repository, productRepository,
+                unitOfWork);
     }
 
     [Given(
@@ -39,16 +48,8 @@ public class AddEntryDocument : EFDataContextDatabaseFixture
     {
         _dto = new AddEntryDocumentDtoBuilder().WithCount(50)
             .WithProductId(_product.Id).Build();
-        UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
-        EntryDocumentRepository repository =
-            new EFEntryDocumentRepository(_dbContext);
-        ProductRepository productRepository =
-            new EFProductRepository(_dbContext);
-        EntryDocumentService sut =
-            new EntryDocumentAppService(repository, productRepository,
-                unitOfWork);
 
-        sut.Add(_dto);
+        _sut.Add(_dto);
     }
 
     [Then(

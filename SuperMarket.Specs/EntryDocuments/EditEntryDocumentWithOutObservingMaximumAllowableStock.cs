@@ -14,6 +14,7 @@ public class
         EFDataContextDatabaseFixture
 {
     private readonly EFDataContext _dbContext;
+    private readonly EntryDocumentAppService _sut;
     private Product _product;
     private EntryDocument _entryDocument;
     private Action _expected;
@@ -22,6 +23,14 @@ public class
         ConfigurationFixture configuration) : base(configuration)
     {
         _dbContext = CreateDataContext();
+        UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
+        EntryDocumentRepository repository =
+            new EFEntryDocumentRepository(_dbContext);
+        ProductRepository productRepository =
+            new EFProductRepository(_dbContext);
+        _sut =
+            new EntryDocumentAppService(repository, productRepository,
+                unitOfWork);
     }
 
     [Given(
@@ -53,16 +62,8 @@ public class
     {
         var dto = new UpdateEntryDocumentDtoBuilder().WithCount(30)
             .WithProductId(_product.Id).Build();
-        UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
-        EntryDocumentRepository repository =
-            new EFEntryDocumentRepository(_dbContext);
-        ProductRepository productRepository =
-            new EFProductRepository(_dbContext);
-        EntryDocumentService sut =
-            new EntryDocumentAppService(repository, productRepository,
-                unitOfWork);
 
-        _expected = () => sut.Update(_entryDocument.Id, dto);
+        _expected = () => _sut.Update(_entryDocument.Id, dto);
     }
 
     [Then(

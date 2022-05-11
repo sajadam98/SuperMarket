@@ -14,6 +14,7 @@ public class
         EFDataContextDatabaseFixture
 {
     private readonly EFDataContext _dbContext;
+    private readonly SaleInvoiceAppService _sut;
     private Product _product;
     private SalesInvoice _salesInvoice;
     private Action _expected;
@@ -23,6 +24,15 @@ public class
         configuration)
     {
         _dbContext = CreateDataContext();
+        var unitOfWork = new EFUnitOfWork(_dbContext);
+        SaleInvoiceRepository saleInvoiceRepository =
+            new EFSaleInvoiceRepository(_dbContext);
+        ProductRepository productRepository =
+            new EFProductRepository(_dbContext);
+        _sut = new SaleInvoiceAppService(
+            saleInvoiceRepository,
+            productRepository,
+            unitOfWork);
     }
 
     [Given(
@@ -57,16 +67,7 @@ public class
         "فاکتوری با تاریخ صدور '16/04/1900' و نام خرید کننده 'علی علینقیپور' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '2' با قیمت '25000' را حذف می کنم")]
     public void When()
     {
-        UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
-        SaleInvoiceRepository repository =
-            new EFSaleInvoiceRepository(_dbContext);
-        ProductRepository productRepository =
-            new EFProductRepository(_dbContext);
-        SaleInvoiceService sut =
-            new SaleInvoiceAppService(repository, productRepository,
-                unitOfWork);
-
-        _expected = () => sut.Delete(_salesInvoice.Id);
+        _expected = () => _sut.Delete(_salesInvoice.Id);
     }
 
     [Then(

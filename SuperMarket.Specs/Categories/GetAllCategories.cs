@@ -12,6 +12,7 @@ using static BDDHelper;
 public class GetAllCategories : EFDataContextDatabaseFixture
 {
     private readonly EFDataContext _dbContext;
+    private readonly CategoryAppService _sut;
     private Category _category;
     private IList<GetCategoryDto> _expected;
 
@@ -19,6 +20,14 @@ public class GetAllCategories : EFDataContextDatabaseFixture
         configuration)
     {
         _dbContext = CreateDataContext();
+        var unitOfWork = new EFUnitOfWork(_dbContext);
+        CategoryRepository categoryRepository =
+            new EFCategoryRepository(_dbContext);
+        ProductRepository productRepository =
+            new EFProductRepository(_dbContext);
+        _sut = new CategoryAppService(categoryRepository,
+            productRepository,
+            unitOfWork);
     }
 
     [Given(
@@ -32,16 +41,7 @@ public class GetAllCategories : EFDataContextDatabaseFixture
     [When("درخواست مشاهده فهرست دسته بندی را میدهم")]
     public void When()
     {
-        var unitOfWork = new EFUnitOfWork(_dbContext);
-        CategoryRepository categoryRepository =
-            new EFCategoryRepository(_dbContext);
-        ProductRepository productRepository =
-            new EFProductRepository(_dbContext);
-        CategoryService sut = new CategoryAppService(categoryRepository,
-            productRepository,
-            unitOfWork);
-
-        _expected = sut.GetAll();
+        _expected = _sut.GetAll();
     }
 
     [Then(

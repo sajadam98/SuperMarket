@@ -13,11 +13,20 @@ public class AddCategory : EFDataContextDatabaseFixture
 {
     private readonly EFDataContext _dbContext;
     private AddCategoryDto _dto;
+    private readonly CategoryAppService _sut;
 
     public AddCategory(ConfigurationFixture configuration) : base(
         configuration)
     {
         _dbContext = CreateDataContext();
+        var unitOfWork = new EFUnitOfWork(_dbContext);
+        CategoryRepository categoryRepository =
+            new EFCategoryRepository(_dbContext);
+        ProductRepository productRepository =
+            new EFProductRepository(_dbContext);
+        _sut = new CategoryAppService(categoryRepository,
+            productRepository,
+            unitOfWork);
     }
 
     [Given(
@@ -30,16 +39,8 @@ public class AddCategory : EFDataContextDatabaseFixture
     public void When()
     {
         _dto = CategoryFactory.GenerateAddCategoryDto();
-        var unitOfWork = new EFUnitOfWork(_dbContext);
-        CategoryRepository categoryRepository =
-            new EFCategoryRepository(_dbContext);
-        ProductRepository _productRepository =
-            new EFProductRepository(_dbContext);
-        CategoryService sut = new CategoryAppService(categoryRepository,
-            _productRepository,
-            unitOfWork);
 
-        sut.Add(_dto);
+        _sut.Add(_dto);
     }
 
     [Then(

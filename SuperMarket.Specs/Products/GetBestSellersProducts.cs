@@ -14,6 +14,7 @@ using static BDDHelper;
 public class GetBestSellersProducts : EFDataContextDatabaseFixture
 {
     private readonly EFDataContext _dbContext;
+    private readonly ProductAppService _sut;
     private Category _category;
     private IList<GetProductSalesReportDto> _expected;
     private Product _product;
@@ -23,6 +24,15 @@ public class GetBestSellersProducts : EFDataContextDatabaseFixture
         base(configuration)
     {
         _dbContext = CreateDataContext();
+        var unitOfWork = new EFUnitOfWork(_dbContext);
+        ProductRepository productRepository =
+            new EFProductRepository(_dbContext);
+        EntryDocumentRepository entryDocumentRepository =
+            new EFEntryDocumentRepository(_dbContext);
+        SaleInvoiceRepository saleInvoiceRepository =
+            new EFSaleInvoiceRepository(_dbContext);
+        _sut = new ProductAppService(productRepository,
+            entryDocumentRepository, saleInvoiceRepository, unitOfWork);
     }
 
     [Given(
@@ -98,17 +108,7 @@ public class GetBestSellersProducts : EFDataContextDatabaseFixture
     [When("درخواست مشاهده فهرست کالاهای کم مشتری را میدهم")]
     public void When()
     {
-        UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
-        ProductRepository productRepository =
-            new EFProductRepository(_dbContext);
-        EntryDocumentRepository entryDocumentFactory =
-            new EFEntryDocumentRepository(_dbContext);
-        SaleInvoiceRepository saleInvoiceRepository =
-            new EFSaleInvoiceRepository(_dbContext);
-        ProductService sut = new ProductAppService(productRepository,
-            entryDocumentFactory, saleInvoiceRepository, unitOfWork);
-
-        _expected = sut.GetBestSellersProducts();
+        _expected = _sut.GetBestSellersProducts();
     }
 
     [Then(

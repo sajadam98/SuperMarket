@@ -13,6 +13,7 @@ using static BDDHelper;
 public class UpdateSaleInvoice : EFDataContextDatabaseFixture
 {
     private readonly EFDataContext _dbContext;
+    private readonly SaleInvoiceAppService _sut;
     private Product _product;
     private SalesInvoice _salesInvoice;
     private UpdateSaleInvoiceDto _dto;
@@ -21,6 +22,15 @@ public class UpdateSaleInvoice : EFDataContextDatabaseFixture
         configuration)
     {
         _dbContext = CreateDataContext();
+        var unitOfWork = new EFUnitOfWork(_dbContext);
+        SaleInvoiceRepository saleInvoiceRepository =
+            new EFSaleInvoiceRepository(_dbContext);
+        ProductRepository productRepository =
+            new EFProductRepository(_dbContext);
+        _sut = new SaleInvoiceAppService(
+            saleInvoiceRepository,
+            productRepository,
+            unitOfWork);
     }
 
     [Given(
@@ -56,16 +66,8 @@ public class UpdateSaleInvoice : EFDataContextDatabaseFixture
             .WithDateTime(new DateTime(1900, 04, 16))
             .WithProductId(_product.Id)
             .Build();
-        UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
-        SaleInvoiceRepository repository =
-            new EFSaleInvoiceRepository(_dbContext);
-        ProductRepository productRepository =
-            new EFProductRepository(_dbContext);
-        SaleInvoiceService sut =
-            new SaleInvoiceAppService(repository, productRepository,
-                unitOfWork);
 
-        sut.Update(_salesInvoice.Id, _dto);
+        _sut.Update(_salesInvoice.Id, _dto);
     }
 
     [Then(

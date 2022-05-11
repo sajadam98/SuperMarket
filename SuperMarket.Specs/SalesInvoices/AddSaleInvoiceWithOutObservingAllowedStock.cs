@@ -14,6 +14,7 @@ public class
         EFDataContextDatabaseFixture
 {
     private readonly EFDataContext _dbContext;
+    private readonly SaleInvoiceAppService _sut;
     private Product _product;
     private Action _expected;
     private AddSaleInvoiceDto _dto;
@@ -23,6 +24,15 @@ public class
         configuration)
     {
         _dbContext = CreateDataContext();
+        var unitOfWork = new EFUnitOfWork(_dbContext);
+        SaleInvoiceRepository saleInvoiceRepository =
+            new EFSaleInvoiceRepository(_dbContext);
+        ProductRepository productRepository =
+            new EFProductRepository(_dbContext);
+        _sut = new SaleInvoiceAppService(
+            saleInvoiceRepository,
+            productRepository,
+            unitOfWork);
     }
 
     [Given(
@@ -46,17 +56,8 @@ public class
             .WithBuyerName("علی علینقیپور")
             .WithDateTime(new DateTime(1900, 04, 16))
             .Build();
-        var unitOfWork = new EFUnitOfWork(_dbContext);
-        SaleInvoiceRepository saleInvoiceRepository =
-            new EFSaleInvoiceRepository(_dbContext);
-        ProductRepository productRepository =
-            new EFProductRepository(_dbContext);
-        SaleInvoiceService sut = new SaleInvoiceAppService(
-            saleInvoiceRepository,
-            productRepository,
-            unitOfWork);
-
-        _expected = () => sut.Add(_dto);
+        
+        _expected = () => _sut.Add(_dto);
     }
 
     [Then(

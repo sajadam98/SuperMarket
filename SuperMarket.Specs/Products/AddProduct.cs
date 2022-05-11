@@ -12,6 +12,7 @@ using static BDDHelper;
 public class AddProduct : EFDataContextDatabaseFixture
 {
     private readonly EFDataContext _dbContext;
+    private readonly ProductAppService _sut;
     private AddProductDto _dto;
     private Category _category;
 
@@ -19,6 +20,15 @@ public class AddProduct : EFDataContextDatabaseFixture
         configuration)
     {
         _dbContext = CreateDataContext();
+        var unitOfWork = new EFUnitOfWork(_dbContext);
+        ProductRepository productRepository =
+            new EFProductRepository(_dbContext);
+        EntryDocumentRepository entryDocumentRepository =
+            new EFEntryDocumentRepository(_dbContext);
+        SaleInvoiceRepository saleInvoiceRepository =
+            new EFSaleInvoiceRepository(_dbContext);
+        _sut = new ProductAppService(productRepository,
+            entryDocumentRepository, saleInvoiceRepository, unitOfWork);
     }
 
     [Given(
@@ -43,17 +53,8 @@ public class AddProduct : EFDataContextDatabaseFixture
             .WithBrand("سن ایچ").WithPrice(25000).WithProductKey("1234")
             .WithMinimumAllowableStock(0).WithMaximumAllowableStock(10)
             .WithCategoryId(_category.Id).Build();
-        var unitOfWork = new EFUnitOfWork(_dbContext);
-        ProductRepository productRepository =
-            new EFProductRepository(_dbContext);
-        EntryDocumentRepository entryDocumentRepository =
-            new EFEntryDocumentRepository(_dbContext);
-        SaleInvoiceRepository saleInvoiceRepository =
-            new EFSaleInvoiceRepository(_dbContext);
-        ProductService sut = new ProductAppService(productRepository,
-            entryDocumentRepository, saleInvoiceRepository, unitOfWork);
 
-        sut.Add(_dto);
+        _sut.Add(_dto);
     }
 
     [Then(

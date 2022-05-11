@@ -13,6 +13,7 @@ using static BDDHelper;
 public class GetAllProducts : EFDataContextDatabaseFixture
 {
     private readonly EFDataContext _dbContext;
+    private readonly ProductAppService _sut;
     private Product _product;
     private IList<GetProductDto> _expected;
 
@@ -20,6 +21,15 @@ public class GetAllProducts : EFDataContextDatabaseFixture
         configuration)
     {
         _dbContext = CreateDataContext();
+        var unitOfWork = new EFUnitOfWork(_dbContext);
+        ProductRepository productRepository =
+            new EFProductRepository(_dbContext);
+        EntryDocumentRepository entryDocumentRepository =
+            new EFEntryDocumentRepository(_dbContext);
+        SaleInvoiceRepository saleInvoiceRepository =
+            new EFSaleInvoiceRepository(_dbContext);
+        _sut = new ProductAppService(productRepository,
+            entryDocumentRepository, saleInvoiceRepository, unitOfWork);
     }
 
     [Given(
@@ -38,17 +48,7 @@ public class GetAllProducts : EFDataContextDatabaseFixture
         "درخواست مشاهده فهرست کالاها را میدهم")]
     public void When()
     {
-        var unitOfWork = new EFUnitOfWork(_dbContext);
-        ProductRepository productRepository =
-            new EFProductRepository(_dbContext);
-        EntryDocumentRepository entryDocumentRepository =
-            new EFEntryDocumentRepository(_dbContext);
-        SaleInvoiceRepository saleInvoiceRepository =
-            new EFSaleInvoiceRepository(_dbContext);
-        ProductService sut = new ProductAppService(productRepository,
-            entryDocumentRepository, saleInvoiceRepository, unitOfWork);
-
-        _expected = sut.GetAll();
+        _expected = _sut.GetAll();
     }
 
     [Then(

@@ -13,6 +13,7 @@ public class
     AddProductWithDuplicateProductKey : EFDataContextDatabaseFixture
 {
     private readonly EFDataContext _dbContext;
+    private readonly ProductAppService _sut;
     private Category _category;
     private Action _expected;
     private Product _product;
@@ -21,6 +22,15 @@ public class
         ConfigurationFixture configuration) : base(configuration)
     {
         _dbContext = CreateDataContext();
+        var unitOfWork = new EFUnitOfWork(_dbContext);
+        ProductRepository productRepository =
+            new EFProductRepository(_dbContext);
+        EntryDocumentRepository entryDocumentRepository =
+            new EFEntryDocumentRepository(_dbContext);
+        SaleInvoiceRepository saleInvoiceRepository =
+            new EFSaleInvoiceRepository(_dbContext);
+        _sut = new ProductAppService(productRepository,
+            entryDocumentRepository, saleInvoiceRepository, unitOfWork);
     }
 
     [Given(
@@ -50,17 +60,8 @@ public class
             .WithBrand("سن ایچ").WithPrice(25000).WithName("آب سیب")
             .WithProductKey("1234").WithMinimumAllowableStock(0)
             .WithMaximumAllowableStock(10).Build();
-        var unitOfWork = new EFUnitOfWork(_dbContext);
-        ProductRepository productRepository =
-            new EFProductRepository(_dbContext);
-        EntryDocumentRepository entryDocumentRepository =
-            new EFEntryDocumentRepository(_dbContext);
-        SaleInvoiceRepository saleInvoiceRepository =
-            new EFSaleInvoiceRepository(_dbContext);
-        ProductService sut = new ProductAppService(productRepository,
-            entryDocumentRepository, saleInvoiceRepository, unitOfWork);
-
-        _expected = () => sut.Add(dto);
+        
+        _expected = () => _sut.Add(dto);
     }
 
     [Then(

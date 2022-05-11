@@ -13,6 +13,7 @@ using static BDDHelper;
 public class GetAllSaleInvoices : EFDataContextDatabaseFixture
 {
     private readonly EFDataContext _dbContext;
+    private readonly SaleInvoiceAppService _sut;
     private IList<GetSaleInvoiceDto> _expected;
     private SalesInvoice _salesInvoice;
     private Product _product;
@@ -21,6 +22,15 @@ public class GetAllSaleInvoices : EFDataContextDatabaseFixture
         configuration)
     {
         _dbContext = CreateDataContext();
+        var unitOfWork = new EFUnitOfWork(_dbContext);
+        SaleInvoiceRepository saleInvoiceRepository =
+            new EFSaleInvoiceRepository(_dbContext);
+        ProductRepository productRepository =
+            new EFProductRepository(_dbContext);
+        _sut = new SaleInvoiceAppService(
+            saleInvoiceRepository,
+            productRepository,
+            unitOfWork);
     }
 
     [And(
@@ -50,17 +60,7 @@ public class GetAllSaleInvoices : EFDataContextDatabaseFixture
     [When("درخواست مشاهده فهرست فاکتورها را میدهم")]
     public void When()
     {
-        var unitOfWork = new EFUnitOfWork(_dbContext);
-        SaleInvoiceRepository saleInvoiceRepository =
-            new EFSaleInvoiceRepository(_dbContext);
-        ProductRepository productRepository =
-            new EFProductRepository(_dbContext);
-        SaleInvoiceService sut = new SaleInvoiceAppService(
-            saleInvoiceRepository,
-            productRepository,
-            unitOfWork);
-
-        _expected = sut.GetAll();
+        _expected = _sut.GetAll();
     }
 
     [Then(

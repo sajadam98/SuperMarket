@@ -14,11 +14,20 @@ public class EditCategory : EFDataContextDatabaseFixture
     private readonly EFDataContext _dbContext;
     private UpdateCategoryDto _dto;
     private Category _category;
+    private readonly CategoryAppService _sut;
 
     public EditCategory(ConfigurationFixture configuration) : base(
         configuration)
     {
         _dbContext = CreateDataContext();
+        var unitOfWork = new EFUnitOfWork(_dbContext);
+        CategoryRepository categoryRepository =
+            new EFCategoryRepository(_dbContext);
+        ProductRepository productRepository =
+            new EFProductRepository(_dbContext);
+        _sut = new CategoryAppService(categoryRepository,
+            productRepository,
+            unitOfWork);
     }
 
     [Given(
@@ -34,16 +43,8 @@ public class EditCategory : EFDataContextDatabaseFixture
     public void When()
     {
         _dto = CategoryFactory.GenerateUpdateCategoryDto();
-        var unitOfWork = new EFUnitOfWork(_dbContext);
-        CategoryRepository categoryRepository =
-            new EFCategoryRepository(_dbContext);
-        ProductRepository productRepository =
-            new EFProductRepository(_dbContext);
-        CategoryService sut = new CategoryAppService(categoryRepository,
-            productRepository,
-            unitOfWork);
 
-        sut.Update(_category.Id, _dto);
+        _sut.Update(_category.Id, _dto);
     }
 
     [Then(

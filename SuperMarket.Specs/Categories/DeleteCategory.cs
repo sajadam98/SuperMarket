@@ -12,11 +12,20 @@ public class DeleteCategory : EFDataContextDatabaseFixture
 {
     private readonly EFDataContext _dbContext;
     private Category _category;
+    private readonly CategoryAppService _sut;
 
     public DeleteCategory(ConfigurationFixture configuration) : base(
         configuration)
     {
         _dbContext = CreateDataContext();
+        var unitOfWork = new EFUnitOfWork(_dbContext);
+        CategoryRepository categoryRepository =
+            new EFCategoryRepository(_dbContext);
+        ProductRepository productRepository =
+            new EFProductRepository(_dbContext);
+        _sut = new CategoryAppService(categoryRepository,
+            productRepository,
+            unitOfWork);
     }
 
     [Given(
@@ -30,15 +39,7 @@ public class DeleteCategory : EFDataContextDatabaseFixture
     [When("دسته بندی با عنوان 'لبنیات' را حذف میکنم")]
     public void When()
     {
-        var unitOfWork = new EFUnitOfWork(_dbContext);
-        CategoryRepository categoryRepository =
-            new EFCategoryRepository(_dbContext);
-        ProductRepository productRepository =
-            new EFProductRepository(_dbContext);
-        CategoryService sut = new CategoryAppService(categoryRepository, productRepository,
-            unitOfWork);
-
-        sut.Delete(_category.Id);
+        _sut.Delete(_category.Id);
     }
 
     [Then(

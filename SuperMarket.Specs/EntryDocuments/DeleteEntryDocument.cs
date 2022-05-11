@@ -11,6 +11,7 @@ using static BDDHelper;
 public class DeleteEntryDocument : EFDataContextDatabaseFixture
 {
     private readonly EFDataContext _dbContext;
+    private readonly EntryDocumentAppService _sut;
     private EntryDocument _entryDocument;
     private Product _product;
 
@@ -18,6 +19,14 @@ public class DeleteEntryDocument : EFDataContextDatabaseFixture
         configuration)
     {
         _dbContext = CreateDataContext();
+        UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
+        EntryDocumentRepository repository =
+            new EFEntryDocumentRepository(_dbContext);
+        ProductRepository productRepository =
+            new EFProductRepository(_dbContext);
+        _sut =
+            new EntryDocumentAppService(repository, productRepository,
+                unitOfWork);
     }
 
     [Given(
@@ -39,16 +48,7 @@ public class DeleteEntryDocument : EFDataContextDatabaseFixture
         "سندی با تاریخ صدور '16/04/1900' شامل کالایی با عنوان 'آب سیب' و کدکالا '1234' و تعداد خرید '10' با قیمت فی '18000' و تاریخ تولید '16/04/1900' و تاریخ انقضا '16/10/1900' را حذف میکنم")]
     public void When()
     {
-        UnitOfWork unitOfWork = new EFUnitOfWork(_dbContext);
-        EntryDocumentRepository repository =
-            new EFEntryDocumentRepository(_dbContext);
-        ProductRepository productRepository =
-            new EFProductRepository(_dbContext);
-        EntryDocumentService sut =
-            new EntryDocumentAppService(repository, productRepository,
-                unitOfWork);
-
-        sut.Delete(_entryDocument.Id);
+        _sut.Delete(_entryDocument.Id);
     }
 
     [Then(

@@ -15,11 +15,20 @@ public class DeleteCategoryWithProduct : EFDataContextDatabaseFixture
     private readonly EFDataContext _dbContext;
     private Category _category;
     private Action _expected;
+    private readonly CategoryAppService _sut;
 
     public DeleteCategoryWithProduct(ConfigurationFixture configuration) :
         base(configuration)
     {
         _dbContext = CreateDataContext();
+        var unitOfWork = new EFUnitOfWork(_dbContext);
+        CategoryRepository categoryRepository =
+            new EFCategoryRepository(_dbContext);
+        ProductRepository productRepository =
+            new EFProductRepository(_dbContext);
+        _sut = new CategoryAppService(categoryRepository,
+            productRepository,
+            unitOfWork);
     }
 
     [Given(
@@ -41,16 +50,7 @@ public class DeleteCategoryWithProduct : EFDataContextDatabaseFixture
     [When("دسته بندی با عنوان 'نوشیدنی' را حذف میکنم")]
     public void When()
     {
-        var unitOfWork = new EFUnitOfWork(_dbContext);
-        CategoryRepository categoryRepository =
-            new EFCategoryRepository(_dbContext);
-        ProductRepository productRepository =
-            new EFProductRepository(_dbContext);
-        CategoryService sut = new CategoryAppService(categoryRepository,
-            productRepository,
-            unitOfWork);
-
-        _expected = () => sut.Delete(_category.Id);
+        _expected = () => _sut.Delete(_category.Id);
     }
 
     [Then("باید دسته بندی با عنوان 'نوشیدنی' در فهرست دسته بندی ها وجود داشته باشد")]
