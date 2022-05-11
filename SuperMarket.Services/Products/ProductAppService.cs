@@ -90,12 +90,12 @@ public class ProductAppService : ProductService
         return saleInvoicesTotalPrice - entryDocumentsTotalPurchase;
     }
 
-    public IList<GetProductDto> GetLowCustomerProducts()
+    public IList<GetProductSalesReportDto> GetLowCustomerProducts()
     {
         return _saleInvoiceRepository.GetLowCustomerProducts();
     }
 
-    public IList<GetProductDto> GetBestSellersProducts()
+    public IList<GetProductSalesReportDto> GetBestSellersProducts()
     {
         return _saleInvoiceRepository.GetBestSellersProducts();
     }

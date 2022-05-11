@@ -42,13 +42,13 @@ public class ProductController
     }
 
     [HttpGet("low-customer")]
-    public IList<GetProductDto> GetLowCustomerProducts()
+    public IList<GetProductSalesReportDto> GetLowCustomerProducts()
     {
         return _service.GetLowCustomerProducts();
     }
 
     [HttpGet("best-seller")]
-    public IList<GetProductDto> GetBestSellerProducts()
+    public IList<GetProductSalesReportDto> GetBestSellerProducts()
     {
         return _service.GetBestSellersProducts();
     }

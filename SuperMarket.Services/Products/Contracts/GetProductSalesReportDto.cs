@@ -1,4 +1,4 @@
-public class GetProductDto
+public class GetProductSalesReportDto
 {
     public int Id { get; set; }
     public string Name { get; set; }
@@ -8,4 +8,5 @@ public class GetProductDto
     public int MinimumAllowableStock { get; set; }
     public int MaximumAllowableStock { get; set; }
     public int Stock { get; set; }
+    public int Count { get; set; }
 }

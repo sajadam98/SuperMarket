@@ -15,7 +15,7 @@ public class GetBestSellersProducts : EFDataContextDatabaseFixture
 {
     private readonly EFDataContext _dbContext;
     private Category _category;
-    private IList<GetProductDto> _expected;
+    private IList<GetProductSalesReportDto> _expected;
     private Product _product;
     private Product _product2;
 

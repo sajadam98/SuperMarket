@@ -52,10 +52,10 @@ public class EFSaleInvoiceRepository : SaleInvoiceRepository
         return totalPrice;
     }
 
-    public IList<GetProductDto> GetLowCustomerProducts()
+    public IList<GetProductSalesReportDto> GetLowCustomerProducts()
     {
         return _dbContext.Set<Product>()
-            .Select(_ => new GetProductDto
+            .Select(_ => new GetProductSalesReportDto
             {
                 Brand = _.Brand,
                 Id = _.Id,
@@ -70,10 +70,10 @@ public class EFSaleInvoiceRepository : SaleInvoiceRepository
             }).OrderBy(_ => _.Count).ToList();
     }
 
-    public IList<GetProductDto> GetBestSellersProducts()
+    public IList<GetProductSalesReportDto> GetBestSellersProducts()
     {
         return _dbContext.Set<Product>()
-            .Select(_ => new GetProductDto
+            .Select(_ => new GetProductSalesReportDto
             {
                 Brand = _.Brand,
                 Id = _.Id,

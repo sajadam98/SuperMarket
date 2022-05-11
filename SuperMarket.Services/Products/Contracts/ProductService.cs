@@ -5,6 +5,6 @@ public interface ProductService : Service
     public IList<GetProductDto> GetAll();
     public IList<GetProductDto> GetAvailableProducts();
     public int GetProfitAndLossReport();
-    public IList<GetProductDto> GetLowCustomerProducts();
-    public IList<GetProductDto> GetBestSellersProducts();
+    public IList<GetProductSalesReportDto> GetLowCustomerProducts();
+    public IList<GetProductSalesReportDto> GetBestSellersProducts();
 }
